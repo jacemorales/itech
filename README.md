@@ -57,11 +57,13 @@ The script URL is: `https://script.google.com/macros/s/AKfycbze4f-5J-pQGp4haOQzS
 - **Spreadsheet URL**: Used only inside the Apps Script code to identify which sheet to use.
 - **Website URL**: Where your site is hosted (e.g., Netlify).
 
-**CORS & Apps Script Deployment:**
-1. Ensure your script is deployed as a **Web App**.
-2. **Execute as**: Me.
-3. **Who has access**: **Anyone**.
-4. If you see CORS errors, check if you have authorized the script to access the spreadsheet.
+**CORS & Apps Script Deployment (CRITICAL):**
+1. **Deployment Type**: Must be "Web App".
+2. **Execute as**: **Me** (Your email).
+3. **Who has access**: **Anyone** (This is crucial to avoid CORS/Auth issues).
+4. **Spreadsheet Permissions**: Ensure your Google Sheet is set to **"Anyone with the link can view"** (or edit if you are posting data).
+5. **Redirection Handling**: Google Apps Script uses redirects (302 Found) when a request is made. The website uses the native `fetch` API which automatically follows these redirects. However, the browser may still report CORS errors if the Apps Script is not correctly configured to return headers.
+6. **Authorization**: If you make changes to the script, you **must** create a **New Deployment** (or update the version) and re-authorize the script.
 
 ## Local Development
 

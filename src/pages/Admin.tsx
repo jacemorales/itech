@@ -215,7 +215,7 @@ const Admin: React.FC = () => {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-2xl bg-white rounded-3xl p-8 shadow-2xl dark:bg-gray-900 overflow-y-auto max-h-[90vh]"
+              className="relative w-full max-w-2xl bg-white rounded-3xl p-8 shadow-2xl dark:bg-gray-900 max-h-[90vh]"
             >
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-2xl font-bold">{editingProduct ? 'Edit Gadget' : 'Add New Gadget'}</h2>
@@ -224,7 +224,7 @@ const Admin: React.FC = () => {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6" style={{ overflowY: 'scroll', height: '376px', paddingRight: '15px' }}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Input
                     label="Gadget Name"
