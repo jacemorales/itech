@@ -22,7 +22,11 @@ export const googleSheetsService = {
     try {
       const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getReviews&productId=${productId}`);
       const data = await response.json();
-      return data;
+      return data.map((r: any) => ({
+        ...r,
+        name: r.userName || r.name || 'Anonymous',
+        text: r.comment || r.text || ''
+      }));
     } catch (error) {
       console.error('Error fetching reviews from Google Sheets:', error);
       return [];
@@ -39,7 +43,10 @@ export const googleSheetsService = {
         },
         body: JSON.stringify({
           action: 'addReview',
-          ...review,
+          productId: review.productId,
+          userName: review.name,
+          comment: review.text,
+          rating: review.rating,
           date: new Date().toISOString().split('T')[0]
         })
       });

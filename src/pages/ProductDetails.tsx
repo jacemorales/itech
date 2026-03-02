@@ -276,7 +276,7 @@ const ProductDetails: React.FC = () => {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-bold dark:bg-primary-950">
-                          {review.name.charAt(0).toUpperCase()}
+                          {(review.name || 'A').charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <h4 className="font-bold text-gray-900 dark:text-white">{review.name}</h4>
