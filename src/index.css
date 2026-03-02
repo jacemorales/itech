@@ -64,12 +64,3 @@ body {
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #374151;
 }
-
-/* Specific Layout Styles */
-.grid-cols-1 {
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-}
-
-.col-span-1 {
-  width: 500px;
-}

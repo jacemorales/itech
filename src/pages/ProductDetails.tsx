@@ -216,7 +216,7 @@ const ProductDetails: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="col-span-1 md:col-span-1">
+            <div className="col-span-1 md:col-span-1 max-w-full md:max-w-[500px]">
               <div className="sticky top-24 bg-gray-50 dark:bg-gray-900 rounded-3xl p-8 border dark:border-gray-800">
                 <h3 className="text-xl font-bold mb-6">Write a Review</h3>
                 <form onSubmit={handleSubmitReview} className="space-y-4">
