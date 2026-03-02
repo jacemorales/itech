@@ -57,6 +57,12 @@ The script URL is: `https://script.google.com/macros/s/AKfycbze4f-5J-pQGp4haOQzS
 - **Spreadsheet URL**: Used only inside the Apps Script code to identify which sheet to use.
 - **Website URL**: Where your site is hosted (e.g., Netlify).
 
+**CORS & Apps Script Deployment:**
+1. Ensure your script is deployed as a **Web App**.
+2. **Execute as**: Me.
+3. **Who has access**: **Anyone**.
+4. If you see CORS errors, check if you have authorized the script to access the spreadsheet.
+
 ## Local Development
 
 1. Clone the repository.

@@ -224,7 +224,7 @@ const Admin: React.FC = () => {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6" style={{ overflowY: 'scroll', height: '376px', paddingRight: '15px' }}>
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Input
                     label="Gadget Name"

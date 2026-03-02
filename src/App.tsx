@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { ProductProvider } from './context/ProductContext';
@@ -29,11 +29,16 @@ const AppContent: React.FC = () => {
     localStorage.setItem('theme', newTheme);
   };
 
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme);
+  }, [theme]);
+
   const location = useLocation();
   const isAdminPage = location.pathname === '/admin';
 
   return (
-    <div className={`${theme} transition-colors duration-300`}>
     <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       {!isAdminPage && <Navbar onOpenCart={() => setIsCartOpen(true)} theme={theme} onToggleTheme={toggleTheme} />}
 
@@ -51,7 +56,6 @@ const AppContent: React.FC = () => {
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       <Toaster position="bottom-right" richColors theme={theme} />
-    </div>
     </div>
   );
 };

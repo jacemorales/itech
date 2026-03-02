@@ -1,14 +1,13 @@
-import axios from 'axios';
 import type { Product, Review, CustomRequest } from '../types';
 
 // The URL of the Google Apps Script web app
-const GOOGLE_SCRIPT_URL = import.meta.env.VITE_GOOGLE_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbze4f-5J-pQGp4haOQzSR9oIGsIoB5N_Nikw5zMrKBEBpbY0jrw9LnU05Ux_UVuR0g/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbze4f-5J-pQGp4haOQzSR9oIGsIoB5N_Nikw5zMrKBEBpbY0jrw9LnU05Ux_UVuR0g/exec';
 
 export const googleSheetsService = {
   async getProducts(): Promise<Product[]> {
     try {
-      const response = await axios.get(`${GOOGLE_SCRIPT_URL}?action=getProducts`);
-      const data = response.data;
+      const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getProducts`);
+      const data = await response.json();
       return data.map((p: any) => ({
         ...p,
         imageUrl: p.imageUrl && p.imageUrl.includes(',') ? p.imageUrl.split(',') : p.imageUrl
@@ -21,8 +20,9 @@ export const googleSheetsService = {
 
   async getReviews(productId: string): Promise<Review[]> {
     try {
-      const response = await axios.get(`${GOOGLE_SCRIPT_URL}?action=getReviews&productId=${productId}`);
-      return response.data;
+      const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getReviews&productId=${productId}`);
+      const data = await response.json();
+      return data;
     } catch (error) {
       console.error('Error fetching reviews from Google Sheets:', error);
       return [];
@@ -31,10 +31,17 @@ export const googleSheetsService = {
 
   async addReview(review: Omit<Review, 'id' | 'date'>): Promise<boolean> {
     try {
-      await axios.post(GOOGLE_SCRIPT_URL, {
-        action: 'addReview',
-        ...review,
-        date: new Date().toISOString().split('T')[0]
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'addReview',
+          ...review,
+          date: new Date().toISOString().split('T')[0]
+        })
       });
       return true;
     } catch (error) {
@@ -45,10 +52,17 @@ export const googleSheetsService = {
 
   async addProduct(product: Omit<Product, 'id'>): Promise<boolean> {
     try {
-      await axios.post(GOOGLE_SCRIPT_URL, {
-        action: 'addProduct',
-        ...product,
-        imageUrl: Array.isArray(product.imageUrl) ? product.imageUrl.join(',') : product.imageUrl
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'addProduct',
+          ...product,
+          imageUrl: Array.isArray(product.imageUrl) ? product.imageUrl.join(',') : product.imageUrl
+        })
       });
       return true;
     } catch (error) {
@@ -63,10 +77,17 @@ export const googleSheetsService = {
         ...product,
         imageUrl: Array.isArray(product.imageUrl) ? product.imageUrl.join(',') : product.imageUrl
       };
-      await axios.post(GOOGLE_SCRIPT_URL, {
-        action: 'updateProduct',
-        id,
-        ...submissionData
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'updateProduct',
+          id,
+          ...submissionData
+        })
       });
       return true;
     } catch (error) {
@@ -77,10 +98,17 @@ export const googleSheetsService = {
 
   async submitCustomRequest(request: Omit<CustomRequest, 'id' | 'date'>): Promise<boolean> {
     try {
-      await axios.post(GOOGLE_SCRIPT_URL, {
-        action: 'addCustomRequest',
-        ...request,
-        date: new Date().toISOString()
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'addCustomRequest',
+          ...request,
+          date: new Date().toISOString()
+        })
       });
       return true;
     } catch (error) {
@@ -91,10 +119,17 @@ export const googleSheetsService = {
 
   async addOrder(order: any): Promise<boolean> {
     try {
-      await axios.post(GOOGLE_SCRIPT_URL, {
-        action: 'addOrder',
-        ...order,
-        date: new Date().toISOString()
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'addOrder',
+          ...order,
+          date: new Date().toISOString()
+        })
       });
       return true;
     } catch (error) {
