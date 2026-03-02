@@ -87,5 +87,19 @@ export const googleSheetsService = {
       console.error('Error submitting custom request to Google Sheets:', error);
       return false;
     }
+  },
+
+  async addOrder(order: any): Promise<boolean> {
+    try {
+      await axios.post(GOOGLE_SCRIPT_URL, {
+        action: 'addOrder',
+        ...order,
+        date: new Date().toISOString()
+      });
+      return true;
+    } catch (error) {
+      console.error('Error adding order to Google Sheets:', error);
+      return false;
+    }
   }
 };

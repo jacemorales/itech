@@ -9,7 +9,7 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-6">
-              <span className="text-2xl font-bold text-primary-600 tracking-tight">iTech <span className="text-gray-900 dark:text-white">gadgets</span></span>
+              <span className="text-2xl font-bold text-primary-600 tracking-tight">ITECH<span className="text-gray-900 dark:text-white">GADETS</span></span>
             </Link>
             <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-xs">
               The premier destination for the latest and greatest tech gadgets. Quality guaranteed, satisfaction delivered.
@@ -36,7 +36,7 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="border-t dark:border-gray-800 mt-12 pt-8 text-center text-gray-600 dark:text-gray-400">
-          <p>© {new Date().getFullYear()} iTech gadgets. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} ITECHGADETS. All rights reserved.</p>
         </div>
       </div>
     </footer>

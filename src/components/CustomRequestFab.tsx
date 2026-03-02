@@ -68,9 +68,9 @@ export const CustomRequestFab: React.FC = () => {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => setIsOpen(true)}
-          className="bg-primary-600 text-white p-4 rounded-full shadow-2xl hover:bg-primary-700 transition-colors flex items-center justify-center"
+          className="bg-primary-600 text-white p-3 rounded-full shadow-2xl hover:bg-primary-700 transition-colors flex items-center justify-center"
         >
-          <MessageSquarePlus className="h-8 w-8" />
+          <MessageSquarePlus className="h-6 w-6" />
         </motion.button>
       </div>
 
@@ -103,7 +103,7 @@ export const CustomRequestFab: React.FC = () => {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6" style={{ overflowY: 'scroll', height: '376px', paddingRight: '15px' }}>
                 <Input
                   label="Gadget Name"
                   placeholder="What gadget are you looking for?"

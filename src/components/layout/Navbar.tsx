@@ -1,13 +1,15 @@
 import React from 'react';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Sun, Moon } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { Link } from 'react-router-dom';
 
 interface NavbarProps {
   onOpenCart: () => void;
+  theme: 'light' | 'dark';
+  onToggleTheme: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onOpenCart, theme, onToggleTheme }) => {
   const { itemCount } = useCart();
 
   return (
@@ -15,11 +17,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-primary-600 tracking-tight">iTech <span className="text-gray-900 dark:text-white">gadgets</span></span>
+            <span className="text-2xl font-bold text-primary-600 tracking-tight">ITECH<span className="text-gray-900 dark:text-white">GADETS</span></span>
           </Link>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => onOpenCart()}
             className="relative rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -30,6 +32,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
                 {itemCount}
               </span>
             )}
+          </button>
+          <button
+            onClick={onToggleTheme}
+            className="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+          >
+            {theme === 'light' ? <Moon className="h-6 w-6" /> : <Sun className="h-6 w-6" />}
           </button>
         </div>
       </div>

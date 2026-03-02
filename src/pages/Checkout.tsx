@@ -4,6 +4,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { toast } from 'sonner';
 import { Navigate } from 'react-router-dom';
+import { googleSheetsService } from '../services/googleSheets';
 import { ShoppingBag, CreditCard, ShieldCheck, MapPin, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -36,10 +37,20 @@ const Checkout: React.FC = () => {
     setFormData(prev => ({ ...prev, platform, platformValue: '' }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // In a real app, we would save the order details to the database before redirecting
+    // Save the order details to the database
+    const orderData = {
+      ...formData,
+      items: cart.map(item => `${item.name} (x${item.quantity})`).join(', '),
+      subtotal,
+      deliveryFee,
+      total
+    };
+
+    await googleSheetsService.addOrder(orderData);
+
     toast.success('Order placed successfully! Notifying admin...');
     toast.info('Redirecting to payment...');
 

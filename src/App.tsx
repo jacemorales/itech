@@ -16,12 +16,26 @@ import Checkout from './pages/Checkout';
 
 const AppContent: React.FC = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') as 'light' | 'dark' || 'light';
+    }
+    return 'light';
+  });
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+  };
+
   const location = useLocation();
   const isAdminPage = location.pathname === '/admin';
 
   return (
+    <div className={`${theme} transition-colors duration-300`}>
     <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-      {!isAdminPage && <Navbar onOpenCart={() => setIsCartOpen(true)} />}
+      {!isAdminPage && <Navbar onOpenCart={() => setIsCartOpen(true)} theme={theme} onToggleTheme={toggleTheme} />}
 
       <main className="flex-grow">
         <Routes>
@@ -36,7 +50,8 @@ const AppContent: React.FC = () => {
       {!isAdminPage && <CustomRequestFab />}
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-      <Toaster position="bottom-right" richColors />
+      <Toaster position="bottom-right" richColors theme={theme} />
+    </div>
     </div>
   );
 };

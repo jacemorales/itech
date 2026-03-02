@@ -39,17 +39,23 @@ Headers: `id`, `productId`, `userName`, `comment`, `rating`, `date`
 #### **CustomRequests**
 Headers: `id`, `gadgetName`, `description`, `imageUrl`, `email`, `date`
 
+#### **Orders**
+Headers: `fullName`, `matricNumber`, `regNumber`, `email`, `platform`, `platformValue`, `deliveryLocation`, `items`, `subtotal`, `deliveryFee`, `total`, `date`
+
 ### 3. Deploy Google Apps Script
 1. In your Google Sheet, go to **Extensions > Apps Script**.
 2. Replace the default code with the provided script (see `README.md` original version or use the logic in `src/services/googleSheets.ts`).
 
-## Environment Variables
+## Google Apps Script API URL
 
-Create a `.env` file in the root directory:
+The website is already configured with the default Google Apps Script URL. You do **not** need to set an environment variable unless you want to use a different script.
 
-```env
-VITE_GOOGLE_SCRIPT_URL=your_web_app_url_here
-```
+The script URL is: `https://script.google.com/macros/s/AKfycbze4f-5J-pQGp4haOQzSR9oIGsIoB5N_Nikw5zMrKBEBpbY0jrw9LnU05Ux_UVuR0g/exec`
+
+**Clarification on URLs:**
+- **VITE_GOOGLE_SCRIPT_URL**: This must be the **Google Apps Script Web App URL** (ends in `/exec`), **NOT** the spreadsheet URL or the website URL.
+- **Spreadsheet URL**: Used only inside the Apps Script code to identify which sheet to use.
+- **Website URL**: Where your site is hosted (e.g., Netlify).
 
 ## Local Development
 
