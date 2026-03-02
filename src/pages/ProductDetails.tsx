@@ -25,13 +25,15 @@ const ProductDetails: React.FC = () => {
 
   useEffect(() => {
     if (!productsLoading && products.length > 0) {
-      const foundProduct = products.find(p => p.id === id);
+      const foundProduct = products.find(p => String(p.id) === String(id));
       if (foundProduct) {
         setProduct(foundProduct);
         loadReviews(foundProduct.id);
       } else {
         setLoading(false);
       }
+    } else if (!productsLoading && products.length === 0) {
+      setLoading(false);
     }
   }, [id, products, productsLoading]);
 
