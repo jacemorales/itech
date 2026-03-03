@@ -9,7 +9,7 @@ import { Plus, Edit, X, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Admin: React.FC = () => {
-  const { products, addProduct, updateProduct, refreshProducts, loading: productsLoading } = useProducts();
+  const { products, addProduct, updateProduct, refreshProducts } = useProducts();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,7 +26,7 @@ const Admin: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'jacemorales') {
+    if (password === 'mmm') {
       setIsAuthenticated(true);
       toast.success('Logged in successfully!');
     } else {

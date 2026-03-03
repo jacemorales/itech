@@ -148,6 +148,21 @@ function doPost(e) {
       body.platform, body.platformValue, body.deliveryLocation,
       body.items, body.subtotal, body.deliveryFee, body.total, body.date
     ]);
+
+    // Optional: Notify Admin via Email
+    try {
+      const adminEmail = 'jacemorales54321@gmail.com';
+      const subject = 'New Order Received - ITECHGADETS';
+      const bodyText = `New order from ${body.fullName}\n\n` +
+                       `Items: ${body.items}\n` +
+                       `Total: ₦${body.total.toLocaleString()}\n` +
+                       `Contact: ${body.platform} - ${body.platformValue}\n` +
+                       `Delivery: ${body.deliveryLocation}`;
+      MailApp.sendEmail(adminEmail, subject, bodyText);
+    } catch (e) {
+      // Email quota might be exceeded or failed
+    }
+
     return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
   }
 }
@@ -162,7 +177,7 @@ To prevent descriptions from showing as a single "blob" of text, the website use
 
 ## Admin Panel Access
 - **URL**: `/admin`
-- **Password**: `jacemorales`
+- **Password**: `mmm`
 
 ## Initial Data (Insert into Products sheet)
 | id | name | description | price | categories | imageUrl |
