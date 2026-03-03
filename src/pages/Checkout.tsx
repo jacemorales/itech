@@ -49,16 +49,23 @@ const Checkout: React.FC = () => {
       total
     };
 
-    await googleSheetsService.addOrder(orderData);
+    toast.info('Processing order...');
 
-    toast.success('Order placed successfully! Notifying admin...');
-    toast.info('Redirecting to payment...');
+    try {
+      await googleSheetsService.addOrder(orderData);
+      toast.success('Order details saved! Redirecting to payment...');
 
-    // Simulate payment redirection
-    setTimeout(() => {
-      window.location.href = 'https://pay-naira.netlify.app';
+      // Clear cart before redirect
       clearCart();
-    }, 1500);
+
+      // Delay to show success toast before redirect
+      setTimeout(() => {
+        window.location.href = 'https://pay-naira.netlify.app';
+      }, 1000);
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast.error('Failed to save order details. Please try again.');
+    }
   };
 
   return (

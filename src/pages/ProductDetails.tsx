@@ -215,8 +215,8 @@ const ProductDetails: React.FC = () => {
             <h2 className="text-3xl font-bold">Reviews</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="col-span-1 md:col-span-1 max-w-full md:max-w-[500px]">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div className="col-span-1 lg:col-span-1">
               <div className="sticky top-24 bg-gray-50 dark:bg-gray-900 rounded-3xl p-8 border dark:border-gray-800">
                 <h3 className="text-xl font-bold mb-6">Write a Review</h3>
                 <form onSubmit={handleSubmitReview} className="space-y-4">
@@ -260,7 +260,7 @@ const ProductDetails: React.FC = () => {
               </div>
             </div>
 
-            <div className="col-span-1 md:col-span-2 space-y-8">
+            <div className="col-span-1 lg:col-span-2 space-y-8">
               {reviews.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500">
                   <p>No reviews yet. Be the first to review this gadget!</p>
