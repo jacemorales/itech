@@ -35,6 +35,7 @@ export const CustomRequestFab: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     setSubmitting(true);
     const success = await googleSheetsService.submitCustomRequest(formData);
     if (success) {
@@ -151,6 +152,7 @@ export const CustomRequestFab: React.FC = () => {
                   type="submit"
                   className="w-full rounded-2xl py-6 text-lg font-bold h-14 shadow-lg"
                   loading={submitting}
+                  disabled={submitting}
                 >
                   Submit Request
                 </Button>

@@ -5,11 +5,11 @@ A modern, production-ready gadget e-commerce platform built with React, TypeScri
 ## Features
 
 - **Home Page**: Real-time search and multi-category filtering.
-- **Product Details**: Full descriptions, auto-changing image slideshow (for multiple images), and quantity selection.
+- **Product Details**: Full descriptions, auto-changing image slideshow, and quantity selection.
 - **Review System**: User reviews with star ratings, stored in Google Sheets.
 - **Cart System**: Persistent local storage, quantity adjustment, and slide-in drawer.
 - **Checkout Flow**: Support for WhatsApp/Telegram contact, delivery fee calculation, and payment redirection.
-- **Admin Panel**: Password-protected gadget management (Add/Edit) with multiple image support and live previews.
+- **Admin Panel**: Password-protected gadget management (Add/Edit) with multiple image support.
 - **Custom Requests**: Floating request feature for users to request specific gadgets.
 
 ## Tech Stack
@@ -24,14 +24,13 @@ A modern, production-ready gadget e-commerce platform built with React, TypeScri
 To use Google Sheets as your database, follow these steps:
 
 ### 1. Create a Google Spreadsheet
-Create a new Google Sheet and name it (e.g., `iTech_Gadgets_DB`).
+Create a new Google Sheet named `iTech_DB`.
 
 ### 2. Create Required Sheets (Tabs)
-Create three tabs at the bottom of your spreadsheet with these exact names and column headers in the first row:
+Create four tabs at the bottom with these exact names and column headers in the first row:
 
 #### **Products**
 Headers: `id`, `name`, `description`, `price`, `categories`, `imageUrl`
-*Note: `imageUrl` can contain multiple URLs separated by commas.*
 
 #### **Reviews**
 Headers: `id`, `productId`, `userName`, `comment`, `rating`, `date`
@@ -44,47 +43,128 @@ Headers: `fullName`, `matricNumber`, `regNumber`, `email`, `platform`, `platform
 
 ### 3. Deploy Google Apps Script
 1. In your Google Sheet, go to **Extensions > Apps Script**.
-2. Replace the default code with the provided script (see `README.md` original version or use the logic in `src/services/googleSheets.ts`).
+2. Replace the default code with this script:
 
-## Google Apps Script API URL
+```javascript
+const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID_HERE';
 
-The website is already configured with the default Google Apps Script URL. You do **not** need to set an environment variable unless you want to use a different script.
+function doGet(e) {
+  const action = e.parameter.action;
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
 
-The script URL is: `https://script.google.com/macros/s/AKfycbze4f-5J-pQGp4haOQzSR9oIGsIoB5N_Nikw5zMrKBEBpbY0jrw9LnU05Ux_UVuR0g/exec`
+  if (action === 'getProducts') {
+    const sheet = ss.getSheetByName('Products');
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+    const rows = data.slice(1);
+    const result = rows.map(row => {
+      let obj = {};
+      headers.forEach((header, i) => {
+        if (header === 'categories') {
+          obj[header] = row[i] ? row[i].toString().split(',') : [];
+        } else if (header === 'imageUrl') {
+          obj[header] = row[i] ? row[i].toString().split(',') : [];
+        } else if (header === 'price') {
+          obj[header] = Number(row[i]);
+        } else {
+          obj[header] = row[i];
+        }
+      });
+      return obj;
+    });
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+  }
 
-**Clarification on URLs:**
-- **VITE_GOOGLE_SCRIPT_URL**: This must be the **Google Apps Script Web App URL** (ends in `/exec`), **NOT** the spreadsheet URL or the website URL.
-- **Spreadsheet URL**: Used only inside the Apps Script code to identify which sheet to use.
-- **Website URL**: Where your site is hosted (e.g., Netlify).
+  if (action === 'getReviews') {
+    const productId = e.parameter.productId;
+    const sheet = ss.getSheetByName('Reviews');
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+    const rows = data.slice(1);
+    const result = rows
+      .map(row => {
+        let obj = {};
+        headers.forEach((header, i) => {
+          obj[header] = row[i];
+        });
+        return obj;
+      })
+      .filter(review => String(review.productId) === String(productId));
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+  }
+}
 
-**CORS & Apps Script Deployment (CRITICAL):**
-1. **Deployment Type**: Must be "Web App".
-2. **Execute as**: **Me** (Your email).
-3. **Who has access**: **Anyone** (This is crucial to avoid CORS/Auth issues).
-4. **Spreadsheet Permissions**: Ensure your Google Sheet is set to **"Anyone with the link can view"** (or edit if you are posting data).
-5. **Redirection Handling**: Google Apps Script uses redirects (302 Found) when a request is made. The website uses the native `fetch` API which automatically follows these redirects. However, the browser may still report CORS errors if the Apps Script is not correctly configured to return headers.
-6. **Authorization**: If you make changes to the script, you **must** create a **New Deployment** (or update the version) and re-authorize the script.
+function doPost(e) {
+  const body = JSON.parse(e.postData.contents);
+  const action = body.action;
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
 
-## Local Development
+  if (action === 'addReview') {
+    const sheet = ss.getSheetByName('Reviews');
+    const id = Utilities.getUuid();
+    sheet.appendRow([id, body.productId, body.userName, body.comment, body.rating, body.date]);
+    return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
+  }
 
-1. Clone the repository.
-2. Install dependencies: `npm install`.
-3. Start development server: `npm run dev`.
+  if (action === 'addProduct') {
+    const sheet = ss.getSheetByName('Products');
+    const id = Utilities.getUuid();
+    const imageUrl = Array.isArray(body.imageUrl) ? body.imageUrl.join(',') : body.imageUrl;
+    sheet.appendRow([id, body.name, body.description, body.price, body.categories.join(','), imageUrl]);
+    return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
+  }
 
-## Deployment
+  if (action === 'updateProduct') {
+    const sheet = ss.getSheetByName('Products');
+    const data = sheet.getDataRange().getValues();
+    const id = body.id;
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === String(id)) {
+        if (body.name) sheet.getRange(i + 1, 2).setValue(body.name);
+        if (body.description) sheet.getRange(i + 1, 3).setValue(body.description);
+        if (body.price) sheet.getRange(i + 1, 4).setValue(body.price);
+        if (body.categories) sheet.getRange(i + 1, 5).setValue(body.categories.join(','));
+        if (body.imageUrl) {
+          const imageUrl = Array.isArray(body.imageUrl) ? body.imageUrl.join(',') : body.imageUrl;
+          sheet.getRange(i + 1, 6).setValue(imageUrl);
+        }
+        break;
+      }
+    }
+    return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
+  }
 
-1. Build the project: `npm run build`.
-2. Deploy the `dist` folder to Netlify.
-3. The project includes a `public/_redirects` file to handle SPA routing on Netlify.
+  if (action === 'addCustomRequest') {
+    const sheet = ss.getSheetByName('CustomRequests');
+    const id = Utilities.getUuid();
+    sheet.appendRow([id, body.gadgetName, body.description, body.imageUrl, body.email, body.date]);
+    return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === 'addOrder') {
+    const sheet = ss.getSheetByName('Orders');
+    sheet.appendRow([
+      body.fullName, body.matricNumber, body.regNumber, body.email,
+      body.platform, body.platformValue, body.deliveryLocation,
+      body.items, body.subtotal, body.deliveryFee, body.total, body.date
+    ]);
+    return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+```
+
+3. Update `YOUR_SPREADSHEET_ID_HERE` with your sheet ID from the URL.
+4. **Deploy > New Deployment**. Select **Web App**. Execute as **Me**. Who has access **Anyone**.
+5. Re-authorize if prompted. Copy the **Web App URL**.
+
+### 4. Important Implementation Note
+To prevent descriptions from showing as a single "blob" of text, the website uses `white-space: pre-wrap;` on the description container. This ensures that all line breaks and spacing entered in the Admin panel are preserved in the product display.
 
 ## Admin Panel Access
+- **URL**: `/admin`
+- **Password**: `jacemorales`
 
-The Admin Panel is located at `/admin`.
-- **Password**: `mmm`
-
-## Initial Data Setup
-You can manually add these initial items to your **Products** sheet:
-
+## Initial Data (Insert into Products sheet)
 | id | name | description | price | categories | imageUrl |
 |----|------|-------------|-------|------------|----------|
 | 1 | iPod Classic | The original music player. | 50000 | iPod | https://images.unsplash.com/photo-1591337676887-a217a6970a8a |

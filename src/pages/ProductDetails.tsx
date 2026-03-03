@@ -62,7 +62,7 @@ const ProductDetails: React.FC = () => {
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!product) return;
+    if (!product || submittingReview) return;
 
     setSubmittingReview(true);
     const success = await addReview({
@@ -168,7 +168,7 @@ const ProductDetails: React.FC = () => {
             </div>
             <span className="text-sm font-medium text-gray-500 dark:text-gray-400">({reviews.length} reviews)</span>
           </div>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+          <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 leading-relaxed whitespace-pre-wrap">
             {product.description}
           </p>
           <div className="mb-8">
@@ -253,6 +253,7 @@ const ProductDetails: React.FC = () => {
                     type="submit"
                     className="w-full rounded-xl py-4 font-bold"
                     loading={submittingReview}
+                    disabled={submittingReview}
                   >
                     Post Review
                   </Button>
@@ -292,7 +293,7 @@ const ProductDetails: React.FC = () => {
                         ))}
                       </div>
                     </div>
-                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed italic">
+                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed italic whitespace-pre-wrap">
                       "{review.text}"
                     </p>
                   </motion.div>

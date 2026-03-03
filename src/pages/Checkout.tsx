@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 
 const Checkout: React.FC = () => {
   const { cart, subtotal, clearCart } = useCart();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -39,6 +40,9 @@ const Checkout: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
 
     // Save the order details to the database
     const orderData = {
@@ -65,6 +69,7 @@ const Checkout: React.FC = () => {
     } catch (error) {
       console.error('Checkout error:', error);
       toast.error('Failed to save order details. Please try again.');
+      setIsSubmitting(false);
     }
   };
 
@@ -169,9 +174,14 @@ const Checkout: React.FC = () => {
                 required
               />
 
-              <Button type="submit" className="w-full rounded-2xl py-6 text-xl font-bold h-16 shadow-lg">
-                <CreditCard className="mr-3 h-6 w-6" />
-                Pay Now
+              <Button
+                type="submit"
+                className="w-full rounded-2xl py-6 text-xl font-bold h-16 shadow-lg"
+                loading={isSubmitting}
+                disabled={isSubmitting}
+              >
+                {!isSubmitting && <CreditCard className="mr-3 h-6 w-6" />}
+                {isSubmitting ? 'Processing...' : 'Pay Now'}
               </Button>
             </form>
           </motion.div>

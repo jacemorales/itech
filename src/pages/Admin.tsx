@@ -9,11 +9,12 @@ import { Plus, Edit, X, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Admin: React.FC = () => {
-  const { products, addProduct, updateProduct, refreshProducts, loading } = useProducts();
+  const { products, addProduct, updateProduct, refreshProducts, loading: productsLoading } = useProducts();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -25,7 +26,7 @@ const Admin: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'mmm') {
+    if (password === 'jacemorales') {
       setIsAuthenticated(true);
       toast.success('Logged in successfully!');
     } else {
@@ -64,10 +65,14 @@ const Admin: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     if (formData.categories.length === 0) {
       toast.error('Please select at least one category');
       return;
     }
+
+    setSubmitting(true);
+    toast.info(editingProduct ? 'Updating gadget...' : 'Publishing gadget...');
 
     const submissionData = {
       ...formData,
@@ -88,6 +93,7 @@ const Admin: React.FC = () => {
     } else {
       toast.error('Something went wrong. Please try again.');
     }
+    setSubmitting(false);
   };
 
   const addImageUrlField = () => {
@@ -330,7 +336,8 @@ const Admin: React.FC = () => {
                   <Button
                     type="submit"
                     className="flex-[2] rounded-xl h-12 font-bold"
-                    loading={loading}
+                    loading={submitting}
+                    disabled={submitting}
                   >
                     {editingProduct ? 'Update Gadget' : 'Publish Gadget'}
                   </Button>
