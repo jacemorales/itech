@@ -69,6 +69,11 @@ const Checkout: React.FC = () => {
     } catch (error) {
       console.error('Checkout error:', error);
       toast.error('Failed to save order details. Please try again.');
+    } finally {
+      // We only re-enable if we haven't redirected yet (i.e., on error or before redirect)
+      // But the redirect is in a setTimeout, so we might re-enable it briefly?
+      // Actually, let's only re-enable on error for a better UX if success redirect is coming.
+      // The user said "until theres a response", so finally is appropriate.
       setIsSubmitting(false);
     }
   };

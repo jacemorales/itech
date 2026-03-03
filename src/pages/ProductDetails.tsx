@@ -4,7 +4,7 @@ import { useProducts } from '../context/ProductContext';
 import { useCart } from '../context/CartContext';
 import type { Product, Review } from '../types';
 import { Button } from '../components/ui/Button';
-import { Minus, Plus, ShoppingCart, Star, ChevronLeft, Calendar } from 'lucide-react';
+import { Minus, Plus, ShoppingCart, Star, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input, TextArea } from '../components/ui/Input';
 import { toast } from 'sonner';
@@ -40,11 +40,25 @@ const ProductDetails: React.FC = () => {
   useEffect(() => {
     if (product && Array.isArray(product.imageUrl) && product.imageUrl.length > 1) {
       const interval = setInterval(() => {
-        setCurrentImageIndex(prev => (prev + 1) % product.imageUrl.length);
-      }, 3000);
+        setCurrentImageIndex(prev => (prev + 1) % (product.imageUrl as string[]).length);
+      }, 5000); // Increased to 5s to allow manual viewing
       return () => clearInterval(interval);
     }
   }, [product]);
+
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (product && Array.isArray(product.imageUrl)) {
+      setCurrentImageIndex(prev => (prev - 1 + product.imageUrl.length) % product.imageUrl.length);
+    }
+  };
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (product && Array.isArray(product.imageUrl)) {
+      setCurrentImageIndex(prev => (prev + 1) % product.imageUrl.length);
+    }
+  };
 
   const loadReviews = async (productId: string) => {
     setLoading(true);
@@ -136,14 +150,33 @@ const ProductDetails: React.FC = () => {
             />
           </AnimatePresence>
           {Array.isArray(product.imageUrl) && product.imageUrl.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-              {product.imageUrl.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-2 w-2 rounded-full transition-colors ${i === currentImageIndex ? 'bg-primary-600' : 'bg-gray-300'}`}
-                />
-              ))}
-            </div>
+            <>
+              <div className="absolute inset-y-0 left-0 flex items-center px-4">
+                <button
+                  onClick={handlePrevImage}
+                  className="rounded-full bg-white/30 backdrop-blur-md p-2 text-white hover:bg-white/50 transition-colors"
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </button>
+              </div>
+              <div className="absolute inset-y-0 right-0 flex items-center px-4">
+                <button
+                  onClick={handleNextImage}
+                  className="rounded-full bg-white/30 backdrop-blur-md p-2 text-white hover:bg-white/50 transition-colors"
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </button>
+              </div>
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                {product.imageUrl.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentImageIndex(i)}
+                    className={`h-2 w-2 rounded-full transition-colors ${i === currentImageIndex ? 'bg-primary-600' : 'bg-gray-300'}`}
+                  />
+                ))}
+              </div>
+            </>
           )}
         </motion.div>
 

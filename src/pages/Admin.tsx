@@ -151,6 +151,7 @@ const Admin: React.FC = () => {
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
+              autoFocus
             />
             <Button type="submit" className="w-full rounded-xl py-4 font-bold h-12">Login</Button>
           </form>
