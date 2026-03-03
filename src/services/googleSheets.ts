@@ -10,7 +10,7 @@ export const googleSheetsService = {
       const data = await response.json();
       return data.map((p: any) => ({
         ...p,
-        imageUrl: p.imageUrl && p.imageUrl.includes(',') ? p.imageUrl.split(',') : p.imageUrl
+        imageUrl: typeof p.imageUrl === 'string' && p.imageUrl.includes(',') ? p.imageUrl.split(',') : p.imageUrl
       }));
     } catch (error) {
       console.error('Error fetching products from Google Sheets:', error);

@@ -16,12 +16,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (product.isExternal) {
+      toast.info('External item selected. Redirecting to order form...');
+      // Logic for redirecting or opening order modal
+      return;
+    }
     addToCart(product);
     toast.success(`${product.name} added to cart!`);
   };
 
   return (
-    <Link to={`/product/${product.id}`} className="group relative block overflow-hidden rounded-2xl bg-white p-4 shadow-md transition-all hover:shadow-xl dark:bg-gray-800">
+    <Link
+      to={`/product/${product.id}`}
+      state={{ externalProduct: product.isExternal ? product : null }}
+      className="group relative block overflow-hidden rounded-2xl bg-white p-4 shadow-md transition-all hover:shadow-xl dark:bg-gray-800"
+    >
       <div className="aspect-square relative overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-700">
         <img
           src={Array.isArray(product.imageUrl) ? product.imageUrl[0] : product.imageUrl}
@@ -34,6 +43,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               {cat}
             </span>
           ))}
+          {product.isExternal && (
+            <span className="rounded-full bg-blue-600/90 px-2 py-0.5 text-[10px] font-bold text-white uppercase">
+              External
+            </span>
+          )}
         </div>
       </div>
       <div className="mt-4 space-y-2">
@@ -44,14 +58,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {product.description}
         </p>
         <div className="flex flex-col gap-3 mt-auto pt-2">
-          <span className="text-xl font-black text-primary-600">₦{product.price.toLocaleString()}</span>
+          {!product.isExternal && (
+            <span className="text-xl font-black text-primary-600">₦{product.price.toLocaleString()}</span>
+          )}
           <Button
             size="sm"
             onClick={handleAddToCart}
             className="rounded-full w-full"
           >
             <ShoppingCart className="mr-2 h-4 w-4" />
-            Add to Cart
+            {product.isExternal ? 'Place Order' : 'Add to Cart'}
           </Button>
         </div>
       </div>

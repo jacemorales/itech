@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useProducts } from '../context/ProductContext';
 import { useCart } from '../context/CartContext';
 import type { Product, Review } from '../types';
@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { products, getReviews, addReview, loading: productsLoading } = useProducts();
   const { addToCart } = useCart();
 
@@ -24,6 +25,13 @@ const ProductDetails: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
+    // Check if we passed an external product in state
+    if (location.state?.externalProduct) {
+      setProduct(location.state.externalProduct);
+      setLoading(false);
+      return;
+    }
+
     if (!productsLoading && products.length > 0) {
       const foundProduct = products.find(p => String(p.id) === String(id));
       if (foundProduct) {
@@ -35,7 +43,7 @@ const ProductDetails: React.FC = () => {
     } else if (!productsLoading && products.length === 0) {
       setLoading(false);
     }
-  }, [id, products, productsLoading]);
+  }, [id, products, productsLoading, location.state]);
 
   useEffect(() => {
     if (product && Array.isArray(product.imageUrl) && product.imageUrl.length > 1) {
@@ -195,60 +203,70 @@ const ProductDetails: React.FC = () => {
           <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight">{product.name}</h1>
           <div className="flex items-center gap-2 mb-6">
             <div className="flex text-yellow-400">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`h-5 w-5 fill-current ${i < 4 ? '' : 'text-gray-300'}`} />
-              ))}
+              {[...Array(5)].map((_, i) => {
+                const rating = product.isExternal ? (product.rating || 0) : 4;
+                return (
+                  <Star key={i} className={`h-5 w-5 fill-current ${i < Math.floor(rating) ? '' : 'text-gray-300'}`} />
+                );
+              })}
             </div>
-            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">({reviews.length} reviews)</span>
+            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              ({product.isExternal ? (product.ratingCount || 0) : reviews.length} {product.isExternal ? 'ratings' : 'reviews'})
+            </span>
           </div>
           <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 leading-relaxed whitespace-pre-wrap">
             {product.description}
           </p>
-          <div className="mb-8">
-            <span className="text-3xl font-black text-primary-600">₦{product.price.toLocaleString()}</span>
-            {product.stock && (
-              <p className="text-sm text-green-600 font-medium mt-1">
-                In Stock ({product.stock} units available)
-              </p>
-            )}
-          </div>
+          {!product.isExternal && (
+            <div className="mb-8">
+              <span className="text-3xl font-black text-primary-600">₦{product.price.toLocaleString()}</span>
+              {product.stock && (
+                <p className="text-sm text-green-600 font-medium mt-1">
+                  In Stock ({product.stock} units available)
+                </p>
+              )}
+            </div>
+          )}
 
           <div className="mt-auto space-y-4">
             <div className="flex items-center gap-6">
-              <div className="flex items-center gap-3 rounded-xl border-2 px-3 py-2 dark:border-gray-700">
-                <button
-                  onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                  className="rounded-lg p-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                  <Minus className="h-5 w-5" />
-                </button>
-                <span className="text-xl font-bold w-8 text-center">{quantity}</span>
-                <button
-                  onClick={() => setQuantity(prev => prev + 1)}
-                  className="rounded-lg p-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                  <Plus className="h-5 w-5" />
-                </button>
-              </div>
+              {!product.isExternal && (
+                <div className="flex items-center gap-3 rounded-xl border-2 px-3 py-2 dark:border-gray-700">
+                  <button
+                    onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                    className="rounded-lg p-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    <Minus className="h-5 w-5" />
+                  </button>
+                  <span className="text-xl font-bold w-8 text-center">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity(prev => prev + 1)}
+                    className="rounded-lg p-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    <Plus className="h-5 w-5" />
+                  </button>
+                </div>
+              )}
               <Button
                 onClick={handleAddToCart}
                 className="flex-1 rounded-xl py-4 text-lg font-bold h-14"
               >
                 <ShoppingCart className="mr-3 h-6 w-6" />
-                Add to Cart
+                {product.isExternal ? 'Place Order' : 'Add to Cart'}
               </Button>
             </div>
           </div>
         </motion.div>
       </div>
 
-      <div className="border-t dark:border-gray-800 pt-16">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-12">
-            <h2 className="text-3xl font-bold">Reviews</h2>
-          </div>
+      {!product.isExternal && (
+        <div className="border-t dark:border-gray-800 pt-16">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center justify-between mb-12">
+              <h2 className="text-3xl font-bold">Reviews</h2>
+            </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             <div className="col-span-1 lg:col-span-1">
               <div className="sticky top-24 bg-gray-50 dark:bg-gray-900 rounded-3xl p-8 border dark:border-gray-800">
                 <h3 className="text-xl font-bold mb-6">Write a Review</h3>
@@ -333,9 +351,10 @@ const ProductDetails: React.FC = () => {
                 ))
               )}
             </div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

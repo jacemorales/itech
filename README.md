@@ -30,7 +30,7 @@ Create a new Google Sheet named `iTech_DB`.
 Create four tabs at the bottom with these exact names and column headers in the first row:
 
 #### **Products**
-Headers: `id`, `name`, `description`, `price`, `categories`, `imageUrl`
+Headers: `id`, `name`, `description`, `price`, `categories`, `imageUrl`, `dateAdded`
 
 #### **Reviews**
 Headers: `id`, `productId`, `userName`, `comment`, `rating`, `date`
@@ -110,7 +110,8 @@ function doPost(e) {
     const sheet = ss.getSheetByName('Products');
     const id = Utilities.getUuid();
     const imageUrl = Array.isArray(body.imageUrl) ? body.imageUrl.join(',') : body.imageUrl;
-    sheet.appendRow([id, body.name, body.description, body.price, body.categories.join(','), imageUrl]);
+    const dateAdded = new Date().toISOString().split('T')[0];
+    sheet.appendRow([id, body.name, body.description, body.price, body.categories.join(','), imageUrl, dateAdded]);
     return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
   }
 

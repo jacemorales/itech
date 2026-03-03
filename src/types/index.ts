@@ -6,6 +6,12 @@ export interface Product {
   categories: string[];
   imageUrl: string | string[];
   stock?: number;
+  dateAdded?: string;
+  isExternal?: boolean;
+  rating?: number;
+  ratingCount?: number;
+  source?: string;
+  link?: string;
 }
 
 export interface Review {

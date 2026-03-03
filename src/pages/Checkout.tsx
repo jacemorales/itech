@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 
 const Checkout: React.FC = () => {
   const { cart, subtotal, clearCart } = useCart();
+  const isExternalOrder = cart.some(item => item.isExternal);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ const Checkout: React.FC = () => {
     deliveryLocation: ''
   });
 
-  const deliveryFee = 500;
+  const deliveryFee = isExternalOrder ? 0 : 500;
   const total = subtotal + deliveryFee;
 
   if (cart.length === 0) {
@@ -93,6 +94,22 @@ const Checkout: React.FC = () => {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-8">
+              {isExternalOrder && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-2xl border border-blue-100 dark:border-blue-800 mb-8">
+                  <h3 className="text-blue-800 dark:text-blue-300 font-bold mb-2">External Item Order</h3>
+                  <p className="text-blue-600 dark:text-blue-400 text-sm">
+                    You are ordering an item from our extended catalog. Our team will contact you to finalize procurement and delivery.
+                  </p>
+                  <div className="mt-4 space-y-2">
+                    {cart.map(item => item.isExternal && (
+                      <div key={item.id} className="text-xs text-blue-500 font-medium">
+                        • {item.name}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Input
                   label="Full Name"
@@ -128,6 +145,19 @@ const Checkout: React.FC = () => {
                   required
                 />
               </div>
+
+              {isExternalOrder && (
+                <div className="space-y-4">
+                  <Input
+                    label="Gadget Info"
+                    value={cart.map(item => `${item.name} (x${item.quantity})`).join(', ')}
+                    readOnly
+                    disabled
+                    className="bg-gray-50 border-gray-200"
+                  />
+                  <input type="hidden" name="price" value="0" />
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
@@ -219,12 +249,14 @@ const Checkout: React.FC = () => {
                 <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
                 <span className="font-bold">₦{subtotal.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                  Delivery Fee <MapPin className="h-3 w-3" />
-                </span>
-                <span className="font-bold">₦{deliveryFee.toLocaleString()}</span>
-              </div>
+              {!isExternalOrder && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                    Delivery Fee <MapPin className="h-3 w-3" />
+                  </span>
+                  <span className="font-bold">₦{deliveryFee.toLocaleString()}</span>
+                </div>
+              )}
               <div className="flex justify-between text-xl font-black pt-4 border-t-2 border-dashed dark:border-gray-700">
                 <span>Total</span>
                 <span className="text-primary-600">₦{total.toLocaleString()}</span>

@@ -2,9 +2,10 @@ import React from 'react';
 import { useProducts } from '../../context/ProductContext';
 import { ProductCard } from './ProductCard';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../ui/Button';
 
 export const ProductGrid: React.FC = () => {
-  const { filteredProducts, loading } = useProducts();
+  const { filteredProducts, loading, externalProducts, isSearchingDeeper, searchDeeper, searchQuery } = useProducts();
 
   if (loading) {
     return (
@@ -44,24 +45,60 @@ export const ProductGrid: React.FC = () => {
   }
 
   return (
-    <motion.div
-      layout
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-    >
-      <AnimatePresence>
-        {filteredProducts.map((product) => (
-          <motion.div
-            key={product.id}
-            layout
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.2 }}
+    <div className="space-y-12">
+      <motion.div
+        layout
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+      >
+        <AnimatePresence mode="popLayout">
+          {filteredProducts.map((product) => (
+            <motion.div
+              key={product.id}
+              layout
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ProductCard product={product} />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </motion.div>
+
+      {searchQuery && externalProducts.length === 0 && (
+        <div className="flex flex-col items-center justify-center pt-8 border-t dark:border-gray-800">
+          <p className="text-gray-500 mb-4">Didn't find what you're looking for?</p>
+          <Button
+            onClick={searchDeeper}
+            loading={isSearchingDeeper}
+            variant="outline"
+            className="rounded-full px-8"
           >
-            <ProductCard product={product} />
-          </motion.div>
-        ))}
-      </AnimatePresence>
-    </motion.div>
+            Search deeper...
+          </Button>
+        </div>
+      )}
+
+      {externalProducts.length > 0 && (
+        <div className="space-y-6 pt-8 border-t dark:border-gray-800">
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <span className="h-8 w-1 bg-primary-600 rounded-full" />
+            Extended Search Results
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {externalProducts.map((product) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <ProductCard product={product} />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
