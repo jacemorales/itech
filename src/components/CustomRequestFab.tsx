@@ -121,7 +121,7 @@ export const CustomRequestFab: React.FC = () => {
                   required
                 />
                 <TextArea
-                  label="Description"
+                  label="Description/Specifications"
                   placeholder="Give us some details about the gadget..."
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}

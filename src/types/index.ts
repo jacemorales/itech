@@ -30,6 +30,27 @@ export interface CartItem extends Product {
   quantity: number;
 }
 
-export type Category = 'iPod' | 'iPad' | 'Accessories' | 'Speaker' | 'Laptop';
+export type Category =
+  | 'Trending / New Arrivals'
+  | 'Mobile Devices'
+  | 'PC'
+  | 'Gaming Gear'
+  | 'Accessories'
+  | 'ipod'
+  | 'ipad'
+  | 'tablet'
+  | 'Windows PC\'s'
+  | 'MacBook PC\'s';
 
-export const CATEGORIES: Category[] = ['iPod', 'iPad', 'Accessories', 'Speaker', 'Laptop'];
+export const CATEGORIES: Category[] = [
+  'Trending / New Arrivals',
+  'Mobile Devices',
+  'PC',
+  'Gaming Gear',
+  'Accessories',
+  'ipod',
+  'ipad',
+  'tablet',
+  'Windows PC\'s',
+  'MacBook PC\'s'
+];
