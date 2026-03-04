@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { ProductProvider } from './context/ProductContext';
+import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { CartDrawer } from './components/cart/CartDrawer';
 import { CustomRequestFab } from './components/CustomRequestFab';
@@ -42,8 +43,9 @@ const AppContent: React.FC = () => {
       <Routes>
         <Route path="/" element={
           <>
+            <Navbar onOpenCart={openCart} theme={theme} onToggleTheme={toggleTheme} />
             <main className="flex-grow">
-              <Home onOpenCart={openCart} theme={theme} onToggleTheme={toggleTheme} />
+              <Home />
             </main>
             <Footer />
             <CustomRequestFab />
@@ -51,8 +53,9 @@ const AppContent: React.FC = () => {
         } />
         <Route path="/product/:id" element={
           <>
+            <Navbar onOpenCart={openCart} theme={theme} onToggleTheme={toggleTheme} />
             <main className="flex-grow">
-              <ProductDetails onOpenCart={openCart} theme={theme} onToggleTheme={toggleTheme} />
+              <ProductDetails />
             </main>
             <Footer />
             <CustomRequestFab />
@@ -60,8 +63,9 @@ const AppContent: React.FC = () => {
         } />
         <Route path="/checkout" element={
           <>
+            <Navbar onOpenCart={openCart} theme={theme} onToggleTheme={toggleTheme} />
             <main className="flex-grow">
-              <Checkout onOpenCart={openCart} theme={theme} onToggleTheme={toggleTheme} />
+              <Checkout />
             </main>
             <Footer />
           </>

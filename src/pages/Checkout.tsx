@@ -5,17 +5,11 @@ import { Input } from '../components/ui/Input';
 import { toast } from 'sonner';
 import { Navigate, Link } from 'react-router-dom';
 import { googleSheetsService } from '../services/googleSheets';
-import { ShoppingBag, CreditCard, ShieldCheck, MapPin, MessageSquare, ChevronLeft, Moon, Sun, ShoppingCart } from 'lucide-react';
+import { ShoppingBag, CreditCard, ShieldCheck, MapPin, MessageSquare, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-interface CheckoutProps {
-  onOpenCart: () => void;
-  theme: 'light' | 'dark';
-  onToggleTheme: () => void;
-}
-
-const Checkout: React.FC<CheckoutProps> = ({ onOpenCart, theme, onToggleTheme }) => {
-  const { cart, subtotal, clearCart, itemCount } = useCart();
+const Checkout: React.FC = () => {
+  const { cart, subtotal, clearCart } = useCart();
   const isExternalOrder = cart.some(item => item.isExternal);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -91,26 +85,6 @@ const Checkout: React.FC<CheckoutProps> = ({ onOpenCart, theme, onToggleTheme })
           <ChevronLeft className="h-4 w-4" />
           Back to Products
         </Link>
-
-        <div className="flex items-center gap-4">
-          <button
-            onClick={onOpenCart}
-            className="relative rounded-full p-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-lg border dark:border-gray-700 transition-transform hover:scale-105"
-          >
-            <ShoppingCart className="h-5 w-5" />
-            {itemCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-600 text-[10px] font-bold text-white shadow-md">
-                {itemCount}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={onToggleTheme}
-            className="rounded-full p-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-lg border dark:border-gray-700 transition-transform hover:scale-105"
-          >
-            {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-          </button>
-        </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-12">
@@ -273,7 +247,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onOpenCart, theme, onToggleTheme })
                   <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
                     Delivery Fee <MapPin className="h-3 w-3" />
                   </span>
-                  <span className="font-bold">₦{deliveryFee.toLocaleString()}</span>
+                  <span className="font-bold">₦500</span>
                 </div>
               )}
               <div className="flex justify-between text-xl font-black pt-4 border-t-2 border-dashed dark:border-gray-700">
