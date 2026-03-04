@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { ProductProvider } from './context/ProductContext';
 import { Navbar } from './components/layout/Navbar';
@@ -36,24 +36,44 @@ const AppContent: React.FC = () => {
     root.style.colorScheme = theme;
   }, [theme]);
 
-  const location = useLocation();
-  const isAdminPage = location.pathname === '/admin';
-
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-      {!isAdminPage && <Navbar onOpenCart={() => setIsCartOpen(true)} theme={theme} onToggleTheme={toggleTheme} />}
-
-      <main className="flex-grow">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/product/:id" element={<ProductDetails />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/checkout" element={<Checkout />} />
-        </Routes>
-      </main>
-
-      {!isAdminPage && <Footer />}
-      {!isAdminPage && <CustomRequestFab />}
+      <Routes>
+        <Route path="/" element={
+          <>
+            <Navbar onOpenCart={() => setIsCartOpen(true)} theme={theme} onToggleTheme={toggleTheme} />
+            <main className="flex-grow">
+              <Home />
+            </main>
+            <Footer />
+            <CustomRequestFab />
+          </>
+        } />
+        <Route path="/product/:id" element={
+          <>
+            <Navbar onOpenCart={() => setIsCartOpen(true)} theme={theme} onToggleTheme={toggleTheme} />
+            <main className="flex-grow">
+              <ProductDetails />
+            </main>
+            <Footer />
+            <CustomRequestFab />
+          </>
+        } />
+        <Route path="/checkout" element={
+          <>
+            <Navbar onOpenCart={() => setIsCartOpen(true)} theme={theme} onToggleTheme={toggleTheme} />
+            <main className="flex-grow">
+              <Checkout />
+            </main>
+            <Footer />
+          </>
+        } />
+        <Route path="/admin" element={
+          <main className="flex-grow">
+            <Admin theme={theme} onToggleTheme={toggleTheme} />
+          </main>
+        } />
+      </Routes>
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       <Toaster position="bottom-right" richColors theme={theme} />

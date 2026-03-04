@@ -5,13 +5,20 @@ import type { Product, Category } from '../types';
 import { Button } from '../components/ui/Button';
 import { Input, TextArea } from '../components/ui/Input';
 import { toast } from 'sonner';
-import { Plus, Edit, X, Lock, ShoppingCart, Globe, MessageSquare, Star, Package, RefreshCw } from 'lucide-react';
+import { Edit, X, Lock, Package, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { googleSheetsService } from '../services/googleSheets';
+import { AdminNavbar } from '../components/layout/AdminNavbar';
+import { Star } from 'lucide-react';
 
 type AdminView = 'inventory' | 'orders' | 'external-orders' | 'custom-requests' | 'reviews';
 
-const Admin: React.FC = () => {
+interface AdminProps {
+  theme: 'light' | 'dark';
+  onToggleTheme: () => void;
+}
+
+const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
   const { products, addProduct, updateProduct, refreshProducts } = useProducts();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeView, setActiveView] = useState<AdminView>('inventory');
@@ -188,238 +195,218 @@ const Admin: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 min-h-screen">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-        <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">Admin Dashboard</h1>
-          <p className="text-gray-500 mt-1 uppercase text-xs font-bold tracking-widest">{activeView.replace('-', ' ')}</p>
+    <div className="min-h-screen bg-white dark:bg-gray-950">
+      <AdminNavbar
+        activeView={activeView}
+        onViewChange={(view) => setActiveView(view)}
+        onAddClick={() => handleOpenModal()}
+        theme={theme}
+        onToggleTheme={onToggleTheme}
+      />
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white capitalize">
+              {activeView.replace('-', ' ')}
+            </h1>
+          </div>
+          {activeView !== 'inventory' && (
+            <button
+              onClick={() => loadViewData(activeView)}
+              disabled={loadingViewData}
+              className="p-2 text-gray-400 hover:text-primary-600 transition-colors"
+            >
+              <RefreshCw className={`h-5 w-5 ${loadingViewData ? 'animate-spin' : ''}`} />
+            </button>
+          )}
         </div>
+
         {activeView === 'inventory' && (
-          <Button onClick={() => handleOpenModal()} className="rounded-xl px-8 py-4 font-bold h-12 shadow-lg shadow-primary-500/20">
-            <Plus className="mr-2 h-5 w-5" />
-            Add New Gadget
-          </Button>
-        )}
-      </div>
-
-      {/* Admin Navigation */}
-      <div className="flex flex-wrap gap-2 mb-10 border-b dark:border-gray-800 pb-4 overflow-x-auto no-scrollbar">
-        {[
-          { id: 'inventory', label: 'Inventory', icon: Package },
-          { id: 'orders', label: 'Orders', icon: ShoppingCart },
-          { id: 'external-orders', label: 'External Orders', icon: Globe },
-          { id: 'custom-requests', label: 'Requests', icon: MessageSquare },
-          { id: 'reviews', label: 'Reviews', icon: Star },
-        ].map(nav => (
-          <button
-            key={nav.id}
-            onClick={() => setActiveView(nav.id as AdminView)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-              activeView === nav.id
-                ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-                : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 border dark:border-gray-800'
-            }`}
-          >
-            <nav.icon className="h-4 w-4" />
-            {nav.label}
-          </button>
-        ))}
-        {activeView !== 'inventory' && (
-          <button
-            onClick={() => loadViewData(activeView)}
-            disabled={loadingViewData}
-            className="ml-auto p-2 text-gray-400 hover:text-primary-600 transition-colors"
-          >
-            <RefreshCw className={`h-4 w-4 ${loadingViewData ? 'animate-spin' : ''}`} />
-          </button>
-        )}
-      </div>
-
-      {activeView === 'inventory' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map(product => (
-          <div key={product.id} className="bg-white border dark:border-gray-800 rounded-3xl p-6 dark:bg-gray-900 flex flex-col shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-start gap-4 mb-4">
-              <div className="h-20 w-20 overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 flex-shrink-0">
-                <img
-                  src={Array.isArray(product.imageUrl) ? product.imageUrl[0] : product.imageUrl}
-                  alt={product.name}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-lg line-clamp-1">{product.name}</h3>
-                <p className="text-primary-600 font-bold">₦{product.price.toLocaleString()}</p>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {product.categories.map(cat => (
-                    <span key={cat} className="text-[10px] bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-gray-500 uppercase font-bold">{cat}</span>
-                  ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products.map(product => (
+            <div key={product.id} className="bg-white border dark:border-gray-800 rounded-3xl p-6 dark:bg-gray-900 flex flex-col shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="h-20 w-20 overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 flex-shrink-0">
+                  <img
+                    src={Array.isArray(product.imageUrl) ? product.imageUrl[0] : product.imageUrl}
+                    alt={product.name}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-lg line-clamp-1">{product.name}</h3>
+                  <p className="text-primary-600 font-bold">₦{product.price.toLocaleString()}</p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {product.categories.map(cat => (
+                      <span key={cat} className="text-[10px] bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-gray-500 uppercase font-bold">{cat}</span>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="flex gap-2 mt-auto">
-              <Button
-                variant="outline"
-                className="flex-1 rounded-xl h-10 text-sm font-bold"
-                onClick={() => handleOpenModal(product)}
-              >
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </Button>
-            </div>
-          </div>
-          ))}
-        </div>
-      )}
-
-      {activeView !== 'inventory' && (
-        <div className="bg-white dark:bg-gray-900 border dark:border-gray-800 rounded-3xl overflow-hidden shadow-sm">
-          {loadingViewData ? (
-            <div className="flex flex-col items-center justify-center py-24 gap-4">
-              <RefreshCw className="h-8 w-8 text-primary-600 animate-spin" />
-              <p className="text-gray-500 font-bold">Fetching records...</p>
-            </div>
-          ) : viewData.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="h-16 w-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
-                <Package className="h-8 w-8 text-gray-300" />
+              <div className="flex gap-2 mt-auto">
+                <Button
+                  variant="outline"
+                  className="flex-1 rounded-xl h-10 text-sm font-bold"
+                  onClick={() => handleOpenModal(product)}
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </Button>
               </div>
-              <h3 className="text-lg font-bold">No records found</h3>
-              <p className="text-gray-500 text-sm">There are no {activeView.replace('-', ' ')} entries yet.</p>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-gray-50 dark:bg-gray-950 border-b dark:border-gray-800">
-                  <tr>
-                    {activeView === 'orders' && (
-                      <>
-                        <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Customer</th>
-                        <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Items</th>
-                        <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Total</th>
-                        <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Platform</th>
-                      </>
-                    )}
-                    {activeView === 'external-orders' && (
-                      <>
-                        <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Gadget</th>
-                        <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Email</th>
-                        <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Qty</th>
-                        <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Total Price</th>
-                      </>
-                    )}
-                    {activeView === 'custom-requests' && (
-                      <>
-                        <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Gadget</th>
-                        <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Requestor</th>
-                        <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Date</th>
-                      </>
-                    )}
-                    {activeView === 'reviews' && (
-                      <>
-                        <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Product</th>
-                        <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Review</th>
-                        <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Rating</th>
-                      </>
-                    )}
-                  </tr>
-                </thead>
-                <tbody className="divide-y dark:divide-gray-800">
-                  {viewData.map((row, i) => (
-                    <tr key={i} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+            ))}
+          </div>
+        )}
+
+        {activeView !== 'inventory' && (
+          <div className="bg-white dark:bg-gray-900 border dark:border-gray-800 rounded-3xl overflow-hidden shadow-sm">
+            {loadingViewData ? (
+              <div className="flex flex-col items-center justify-center py-24 gap-4">
+                <RefreshCw className="h-8 w-8 text-primary-600 animate-spin" />
+                <p className="text-gray-500 font-bold">Fetching records...</p>
+              </div>
+            ) : viewData.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-24 text-center">
+                <div className="h-16 w-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                  <Package className="h-8 w-8 text-gray-300" />
+                </div>
+                <h3 className="text-lg font-bold">No records found</h3>
+                <p className="text-gray-500 text-sm">There are no {activeView.replace('-', ' ')} entries yet.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead className="bg-gray-50 dark:bg-gray-950 border-b dark:border-gray-800">
+                    <tr>
                       {activeView === 'orders' && (
                         <>
-                          <td className="px-6 py-4">
-                            <div className="font-bold">{row.fullName}</div>
-                            <div className="text-xs text-gray-500">{row.email}</div>
-                            <div className="text-[10px] text-primary-600 font-bold uppercase mt-1">{row.deliveryLocation}</div>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate" title={row.items}>
-                            {row.items}
-                          </td>
-                          <td className="px-6 py-4 font-black">₦{Number(row.total).toLocaleString()}</td>
-                          <td className="px-6 py-4">
-                            <span className={`text-[10px] font-black px-2 py-1 rounded-full uppercase ${row.platform === 'WhatsApp' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                              {row.platform}
-                            </span>
-                            <div className="text-xs mt-1">{row.platformValue}</div>
-                          </td>
+                          <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Customer</th>
+                          <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Items</th>
+                          <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Total</th>
+                          <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Platform</th>
                         </>
                       )}
                       {activeView === 'external-orders' && (
                         <>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              <div className="h-10 w-10 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
-                                <img src={row.imageUrl} className="h-full w-full object-cover" alt="" />
-                              </div>
-                              <div>
-                                <div className="font-bold text-sm">{row.gadgetName}</div>
-                                <div className="text-[10px] text-gray-400 uppercase font-bold">{row.source}</div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-sm font-medium">{row.email}</td>
-                          <td className="px-6 py-4 font-bold">{row.quantity}</td>
-                          <td className="px-6 py-4 font-black text-primary-600">${Number(row.totalPrice).toLocaleString()}</td>
+                          <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Gadget</th>
+                          <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Email</th>
+                          <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Qty</th>
+                          <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Total Price</th>
                         </>
                       )}
                       {activeView === 'custom-requests' && (
                         <>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              <div className="h-10 w-10 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
-                                <img src={row.imageUrl} className="h-full w-full object-cover" alt="" />
-                              </div>
-                              <div>
-                                <div className="font-bold text-sm">{row.gadgetName}</div>
-                                <div className="text-xs text-gray-500 line-clamp-1">{row.description}</div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-sm font-bold text-primary-600">{row.email}</td>
-                          <td className="px-6 py-4 text-xs text-gray-500 font-bold">{new Date(row.date).toLocaleDateString()}</td>
+                          <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Gadget</th>
+                          <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Requestor</th>
+                          <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Date</th>
                         </>
                       )}
                       {activeView === 'reviews' && (
                         <>
-                          <td className="px-6 py-4">
-                             {/* Attempt to find the product for tagging */}
-                             {(() => {
-                               const product = products.find(p => String(p.id) === String(row.productId));
-                               return product ? (
-                                 <div className="flex items-center gap-2 max-w-[150px]">
-                                   <div className="h-8 w-8 rounded bg-gray-100 overflow-hidden flex-shrink-0">
-                                     <img src={Array.isArray(product.imageUrl) ? product.imageUrl[0] : product.imageUrl} className="h-full w-full object-cover" alt="" />
-                                   </div>
-                                   <div className="text-[10px] font-bold truncate">{product.name}</div>
-                                 </div>
-                               ) : (
-                                 <span className="text-[10px] text-gray-400">ID: {row.productId}</span>
-                               );
-                             })()}
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="font-bold text-xs">{row.name}</div>
-                            <div className="text-xs text-gray-500 italic mt-1 line-clamp-2">"{row.text}"</div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex text-yellow-400">
-                              {[...Array(5)].map((_, j) => (
-                                <Star key={j} className={`h-3 w-3 fill-current ${j < row.rating ? '' : 'text-gray-200'}`} />
-                              ))}
-                            </div>
-                          </td>
+                          <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Product</th>
+                          <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Review</th>
+                          <th className="px-6 py-4 text-xs font-black uppercase text-gray-500">Rating</th>
                         </>
                       )}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
+                  </thead>
+                  <tbody className="divide-y dark:divide-gray-800">
+                    {viewData.map((row, i) => (
+                      <tr key={i} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+                        {activeView === 'orders' && (
+                          <>
+                            <td className="px-6 py-4">
+                              <div className="font-bold">{row.fullName}</div>
+                              <div className="text-xs text-gray-500">{row.email}</div>
+                              <div className="text-[10px] text-primary-600 font-bold uppercase mt-1">{row.deliveryLocation}</div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate" title={row.items}>
+                              {row.items}
+                            </td>
+                            <td className="px-6 py-4 font-black">₦{Number(row.total).toLocaleString()}</td>
+                            <td className="px-6 py-4">
+                              <span className={`text-[10px] font-black px-2 py-1 rounded-full uppercase ${row.platform === 'WhatsApp' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                                {row.platform}
+                              </span>
+                              <div className="text-xs mt-1">{row.platformValue}</div>
+                            </td>
+                          </>
+                        )}
+                        {activeView === 'external-orders' && (
+                          <>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
+                                  <img src={row.imageUrl} className="h-full w-full object-cover" alt="" />
+                                </div>
+                                <div>
+                                  <div className="font-bold text-sm">{row.gadgetName}</div>
+                                  <div className="text-[10px] text-gray-400 uppercase font-bold">{row.source}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm font-medium">{row.email}</td>
+                            <td className="px-6 py-4 font-bold">{row.quantity}</td>
+                            <td className="px-6 py-4 font-black text-primary-600">${Number(row.totalPrice).toLocaleString()}</td>
+                          </>
+                        )}
+                        {activeView === 'custom-requests' && (
+                          <>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
+                                  <img src={row.imageUrl} className="h-full w-full object-cover" alt="" />
+                                </div>
+                                <div>
+                                  <div className="font-bold text-sm">{row.gadgetName}</div>
+                                  <div className="text-xs text-gray-500 line-clamp-1">{row.description}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm font-bold text-primary-600">{row.email}</td>
+                            <td className="px-6 py-4 text-xs text-gray-500 font-bold">{new Date(row.date).toLocaleDateString()}</td>
+                          </>
+                        )}
+                        {activeView === 'reviews' && (
+                          <>
+                            <td className="px-6 py-4">
+                               {(() => {
+                                 const product = products.find(p => String(p.id) === String(row.productId));
+                                 return product ? (
+                                   <div className="flex items-center gap-2 max-w-[150px]">
+                                     <div className="h-8 w-8 rounded bg-gray-100 overflow-hidden flex-shrink-0">
+                                       <img src={Array.isArray(product.imageUrl) ? product.imageUrl[0] : product.imageUrl} className="h-full w-full object-cover" alt="" />
+                                     </div>
+                                     <div className="text-[10px] font-bold truncate">{product.name}</div>
+                                   </div>
+                                 ) : (
+                                   <span className="text-[10px] text-gray-400">ID: {row.productId}</span>
+                                 );
+                               })()}
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="font-bold text-xs">{row.name}</div>
+                              <div className="text-xs text-gray-500 italic mt-1 line-clamp-2">"{row.text}"</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex text-yellow-400">
+                                {[...Array(5)].map((_, j) => (
+                                  <Star key={j} className={`h-3 w-3 fill-current ${j < row.rating ? '' : 'text-gray-200'}`} />
+                                ))}
+                              </div>
+                            </td>
+                          </>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       <AnimatePresence>
         {isModalOpen && (
