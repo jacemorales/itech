@@ -164,7 +164,7 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex h-screen items-center justify-center px-4 bg-gray-50 dark:bg-gray-950">
+      <div className="fixed inset-0 flex items-center justify-center px-4 bg-gray-50 dark:bg-gray-950 z-[100]">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}

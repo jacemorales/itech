@@ -1,6 +1,5 @@
 import React from 'react';
 import { ShoppingCart, Sun, Moon, Package, Globe, MessageSquare, Star, Plus, RefreshCw } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { Button } from '../ui/Button';
 
 interface AdminNavbarProps {
@@ -27,10 +26,10 @@ export const AdminNavbar: React.FC<AdminNavbarProps> = ({
       <div className="container mx-auto px-4">
         {/* Top Row: Logo & Actions */}
         <div className="flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
+          <div className="flex items-center gap-2 select-none">
             <span className="text-xl font-bold text-primary-600 tracking-tight">ITECH<span className="text-gray-900 dark:text-white">GADETS</span></span>
             <span className="bg-primary-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded uppercase">Admin</span>
-          </Link>
+          </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
             {activeView !== 'inventory' && onRefresh && (

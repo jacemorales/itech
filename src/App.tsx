@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { ProductProvider } from './context/ProductContext';
-import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { CartDrawer } from './components/cart/CartDrawer';
 import { CustomRequestFab } from './components/CustomRequestFab';
@@ -36,14 +35,15 @@ const AppContent: React.FC = () => {
     root.style.colorScheme = theme;
   }, [theme]);
 
+  const openCart = () => setIsCartOpen(true);
+
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <Routes>
         <Route path="/" element={
           <>
-            <Navbar onOpenCart={() => setIsCartOpen(true)} theme={theme} onToggleTheme={toggleTheme} />
             <main className="flex-grow">
-              <Home />
+              <Home onOpenCart={openCart} theme={theme} onToggleTheme={toggleTheme} />
             </main>
             <Footer />
             <CustomRequestFab />
@@ -51,9 +51,8 @@ const AppContent: React.FC = () => {
         } />
         <Route path="/product/:id" element={
           <>
-            <Navbar onOpenCart={() => setIsCartOpen(true)} theme={theme} onToggleTheme={toggleTheme} />
             <main className="flex-grow">
-              <ProductDetails />
+              <ProductDetails onOpenCart={openCart} theme={theme} onToggleTheme={toggleTheme} />
             </main>
             <Footer />
             <CustomRequestFab />
@@ -61,9 +60,8 @@ const AppContent: React.FC = () => {
         } />
         <Route path="/checkout" element={
           <>
-            <Navbar onOpenCart={() => setIsCartOpen(true)} theme={theme} onToggleTheme={toggleTheme} />
             <main className="flex-grow">
-              <Checkout />
+              <Checkout onOpenCart={openCart} theme={theme} onToggleTheme={toggleTheme} />
             </main>
             <Footer />
           </>

@@ -3,13 +3,19 @@ import { useCart } from '../context/CartContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { toast } from 'sonner';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import { googleSheetsService } from '../services/googleSheets';
-import { ShoppingBag, CreditCard, ShieldCheck, MapPin, MessageSquare } from 'lucide-react';
+import { ShoppingBag, CreditCard, ShieldCheck, MapPin, MessageSquare, ChevronLeft, Moon, Sun, ShoppingCart } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const Checkout: React.FC = () => {
-  const { cart, subtotal, clearCart } = useCart();
+interface CheckoutProps {
+  onOpenCart: () => void;
+  theme: 'light' | 'dark';
+  onToggleTheme: () => void;
+}
+
+const Checkout: React.FC<CheckoutProps> = ({ onOpenCart, theme, onToggleTheme }) => {
+  const { cart, subtotal, clearCart, itemCount } = useCart();
   const isExternalOrder = cart.some(item => item.isExternal);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -71,16 +77,42 @@ const Checkout: React.FC = () => {
       console.error('Checkout error:', error);
       toast.error('Failed to save order details. Please try again.');
     } finally {
-      // We only re-enable if we haven't redirected yet (i.e., on error or before redirect)
-      // But the redirect is in a setTimeout, so we might re-enable it briefly?
-      // Actually, let's only re-enable on error for a better UX if success redirect is coming.
-      // The user said "until theres a response", so finally is appropriate.
       setIsSubmitting(false);
     }
   };
 
   return (
     <div className="container mx-auto px-4 py-12 min-h-screen">
+      <div className="flex items-center justify-between mb-12">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-sm font-bold text-gray-600 hover:text-primary-600 transition-colors"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Back to Products
+        </Link>
+
+        <div className="flex items-center gap-4">
+          <button
+            onClick={onOpenCart}
+            className="relative rounded-full p-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-lg border dark:border-gray-700 transition-transform hover:scale-105"
+          >
+            <ShoppingCart className="h-5 w-5" />
+            {itemCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-600 text-[10px] font-bold text-white shadow-md">
+                {itemCount}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={onToggleTheme}
+            className="rounded-full p-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-lg border dark:border-gray-700 transition-transform hover:scale-105"
+          >
+            {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+          </button>
+        </div>
+      </div>
+
       <div className="flex flex-col lg:flex-row gap-12">
         <div className="flex-1">
           <motion.div
@@ -145,19 +177,6 @@ const Checkout: React.FC = () => {
                   required
                 />
               </div>
-
-              {isExternalOrder && (
-                <div className="space-y-4">
-                  <Input
-                    label="Gadget Info"
-                    value={cart.map(item => `${item.name} (x${item.quantity})`).join(', ')}
-                    readOnly
-                    disabled
-                    className="bg-gray-50 border-gray-200"
-                  />
-                  <input type="hidden" name="price" value="0" />
-                </div>
-              )}
 
               <div>
                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
