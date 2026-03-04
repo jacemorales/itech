@@ -7,12 +7,34 @@ export const googleSheetsService = {
   async getProducts(): Promise<Product[]> {
     try {
       const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getProducts`);
-      const data = await response.json();
-      if (data.error) throw new Error(data.error);
-      return data.map((p: any) => ({
+      const text = await response.text();
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (err) {
+        console.error('Failed to parse JSON from Google Sheets. Raw response:', text);
+        return [];
+      }
+
+      if (!Array.isArray(data)) {
+        console.error('Expected array from Google Sheets, got:', data);
+        return [];
+      }
+
+      return data.map((p: Record<string, any>) => ({
         ...p,
-        imageUrl: Array.isArray(p.imageUrl) ? p.imageUrl : (typeof p.imageUrl === 'string' && p.imageUrl.includes(',') ? p.imageUrl.split(',') : [p.imageUrl])
-      }));
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        price: Number(p.price),
+        imageUrl: Array.isArray(p.imageUrl)
+          ? p.imageUrl
+          : (typeof p.imageUrl === 'string' && p.imageUrl.trim() !== '' ? p.imageUrl.split(',').map((s: string) => s.trim()) : []),
+        categories: Array.isArray(p.categories)
+          ? p.categories
+          : (typeof p.categories === 'string' && p.categories.trim() !== '' ? p.categories.split(',').map((s: string) => s.trim()) : [])
+      })) as Product[];
     } catch (error) {
       console.error('Error fetching products from Google Sheets:', error);
       return [];
@@ -23,7 +45,7 @@ export const googleSheetsService = {
     try {
       const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getReviews&productId=${productId}`);
       const data = await response.json();
-      if (data.error) throw new Error(data.error);
+      if (!Array.isArray(data)) return [];
       return data.map((r: any) => ({
         ...r,
         name: r.userName || r.name || 'Anonymous',
@@ -172,7 +194,7 @@ export const googleSheetsService = {
     try {
       const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getAllReviews`);
       const data = await response.json();
-      if (data.error) throw new Error(data.error);
+      if (!Array.isArray(data)) return [];
       return data.map((r: any) => ({
         ...r,
         name: r.userName || r.name || 'Anonymous',
@@ -188,7 +210,7 @@ export const googleSheetsService = {
     try {
       const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getOrders`);
       const data = await response.json();
-      if (data.error) throw new Error(data.error);
+      if (!Array.isArray(data)) return [];
       return data;
     } catch (error) {
       console.error('Error fetching all orders:', error);
@@ -200,7 +222,7 @@ export const googleSheetsService = {
     try {
       const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getExternalOrders`);
       const data = await response.json();
-      if (data.error) throw new Error(data.error);
+      if (!Array.isArray(data)) return [];
       return data;
     } catch (error) {
       console.error('Error fetching all external orders:', error);
@@ -212,7 +234,7 @@ export const googleSheetsService = {
     try {
       const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getCustomRequests`);
       const data = await response.json();
-      if (data.error) throw new Error(data.error);
+      if (!Array.isArray(data)) return [];
       return data;
     } catch (error) {
       console.error('Error fetching all custom requests:', error);

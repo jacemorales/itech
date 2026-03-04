@@ -1,5 +1,4 @@
 import React from 'react';
-import { useProducts } from '../context/ProductContext';
 import { useCart } from '../context/CartContext';
 import { SearchBar } from '../components/layout/SearchBar';
 import { CategoryFilter } from '../components/products/CategoryFilter';

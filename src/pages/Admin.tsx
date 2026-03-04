@@ -5,7 +5,7 @@ import type { Product, Category } from '../types';
 import { Button } from '../components/ui/Button';
 import { Input, TextArea } from '../components/ui/Input';
 import { toast } from 'sonner';
-import { Edit, X, Lock, Package, RefreshCw } from 'lucide-react';
+import { Edit, X, Lock, Package, RefreshCw, ShoppingBag, User, CreditCard, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { googleSheetsService } from '../services/googleSheets';
 import { AdminNavbar } from '../components/layout/AdminNavbar';
@@ -19,7 +19,7 @@ interface AdminProps {
 }
 
 const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
-  const { products, addProduct, updateProduct, refreshProducts } = useProducts();
+  const { products, addProduct, updateProduct, refreshProducts, loading: productsLoading } = useProducts();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeView, setActiveView] = useState<AdminView>('inventory');
   const [password, setPassword] = useState('');
@@ -203,8 +203,11 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
         activeView={activeView}
         onViewChange={(view) => setActiveView(view)}
         onAddClick={() => handleOpenModal()}
-        onRefresh={() => loadViewData(activeView)}
-        refreshing={loadingViewData}
+        onRefresh={() => {
+          if (activeView === 'inventory') refreshProducts();
+          else loadViewData(activeView);
+        }}
+        refreshing={activeView === 'inventory' ? productsLoading : loadingViewData}
         theme={theme}
         onToggleTheme={onToggleTheme}
       />
@@ -219,40 +222,57 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
         </div>
 
         {activeView === 'inventory' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map(product => (
-            <div key={product.id} className="bg-white border dark:border-gray-800 rounded-3xl p-6 dark:bg-gray-900 flex flex-col shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
-              <div className="flex items-start gap-4 mb-4">
-                <div className="h-20 w-20 overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 flex-shrink-0 border dark:border-gray-700">
-                  <img
-                    src={Array.isArray(product.imageUrl) ? product.imageUrl[0] : product.imageUrl}
-                    alt={product.name}
-                    className="h-full w-full object-cover"
-                  />
+          <>
+            {productsLoading ? (
+              <div className="flex flex-col items-center justify-center py-24 gap-4">
+                <RefreshCw className="h-10 w-10 text-primary-600 animate-spin" />
+                <p className="text-gray-500 font-bold animate-pulse">Loading Inventory...</p>
+              </div>
+            ) : products.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-24 text-center">
+                <div className="h-20 w-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4 shadow-inner">
+                  <Package className="h-10 w-10 text-gray-300" />
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-lg line-clamp-1">{product.name}</h3>
-                  <p className="text-primary-600 font-black">₦{product.price.toLocaleString()}</p>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {product.categories.map(cat => (
-                      <span key={cat} className="text-[10px] bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-gray-500 uppercase font-bold tracking-wider">{cat}</span>
-                    ))}
+                <h3 className="text-xl font-bold">Inventory is Empty</h3>
+                <p className="text-gray-500 text-sm max-w-xs mx-auto">Start by adding your first gadget to the store.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {products.map(product => (
+                <div key={product.id} className="bg-white border dark:border-gray-800 rounded-3xl p-6 dark:bg-gray-900 flex flex-col shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="h-20 w-20 overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 flex-shrink-0 border dark:border-gray-700">
+                      <img
+                        src={Array.isArray(product.imageUrl) ? product.imageUrl[0] : product.imageUrl}
+                        alt={product.name}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg line-clamp-1">{product.name}</h3>
+                      <p className="text-primary-600 font-black">₦{product.price.toLocaleString()}</p>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {product.categories.map(cat => (
+                          <span key={cat} className="text-[10px] bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-gray-500 uppercase font-bold tracking-wider">{cat}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-auto pt-4 border-t dark:border-gray-800">
+                    <Button
+                      variant="outline"
+                      className="flex-1 rounded-xl h-11 text-sm font-bold"
+                      onClick={() => handleOpenModal(product)}
+                    >
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit Details
+                    </Button>
                   </div>
                 </div>
+                ))}
               </div>
-              <div className="flex gap-2 mt-auto pt-4 border-t dark:border-gray-800">
-                <Button
-                  variant="outline"
-                  className="flex-1 rounded-xl h-11 text-sm font-bold"
-                  onClick={() => handleOpenModal(product)}
-                >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Details
-                </Button>
-              </div>
-            </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
 
         {activeView !== 'inventory' && (
@@ -277,10 +297,10 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
                     <tr>
                       {activeView === 'orders' && (
                         <>
-                          <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-gray-500">Customer</th>
-                          <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-gray-500">Items</th>
-                          <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-gray-500">Total Amount</th>
-                          <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-gray-500">Platform</th>
+                          <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-gray-500">Customer & Location</th>
+                          <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-gray-500">Items Ordered</th>
+                          <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-gray-500">Financials</th>
+                          <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-gray-500">Contact</th>
                         </>
                       )}
                       {activeView === 'external-orders' && (
@@ -313,14 +333,34 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
                         {activeView === 'orders' && (
                           <>
                             <td className="px-6 py-5">
-                              <div className="font-bold text-gray-900 dark:text-white">{row.fullName}</div>
-                              <div className="text-xs text-gray-500 font-medium">{row.email}</div>
-                              <div className="text-[10px] text-primary-600 font-black uppercase mt-1 inline-block bg-primary-50 dark:bg-primary-950/30 px-2 py-0.5 rounded-full">{row.deliveryLocation}</div>
+                              <div className="flex items-center gap-3 mb-1">
+                                <User className="h-4 w-4 text-primary-600" />
+                                <div className="font-bold text-gray-900 dark:text-white">{row.fullName}</div>
+                              </div>
+                              <div className="text-xs text-gray-500 font-medium ml-7">{row.email}</div>
+                              <div className="mt-2 ml-7">
+                                <div className="text-[10px] text-primary-600 font-black uppercase bg-primary-50 dark:bg-primary-950/30 px-2 py-0.5 rounded-full inline-block">
+                                  {row.deliveryLocation}
+                                </div>
+                              </div>
                             </td>
-                            <td className="px-6 py-5 text-sm text-gray-600 dark:text-gray-400 max-w-xs">
-                              <div className="line-clamp-2" title={row.items}>{row.items}</div>
+                            <td className="px-6 py-5">
+                              <div className="space-y-1">
+                                {row.items.split(' | ').map((item: string, idx: number) => (
+                                  <div key={idx} className="flex items-start gap-2 text-xs">
+                                    <ShoppingBag className="h-3 w-3 mt-0.5 text-gray-400 flex-shrink-0" />
+                                    <span className="text-gray-700 dark:text-gray-300 font-medium">{item}</span>
+                                  </div>
+                                ))}
+                              </div>
                             </td>
-                            <td className="px-6 py-5 font-black text-gray-900 dark:text-white">₦{Number(row.total).toLocaleString()}</td>
+                            <td className="px-6 py-5">
+                               <div className="flex items-center gap-2 mb-1">
+                                 <CreditCard className="h-4 w-4 text-green-600" />
+                                 <span className="font-black text-gray-900 dark:text-white">₦{Number(row.total).toLocaleString()}</span>
+                               </div>
+                               <div className="text-[10px] text-gray-400 font-bold ml-6 uppercase">Sub: ₦{Number(row.subtotal).toLocaleString()}</div>
+                            </td>
                             <td className="px-6 py-5">
                               <span className={`text-[10px] font-black px-2 py-1 rounded-full uppercase ${row.platform === 'WhatsApp' ? 'bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400'}`}>
                                 {row.platform}
@@ -534,7 +574,7 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
                 <Button
                   type="submit"
                   className="flex-[2] rounded-2xl h-14 font-black text-lg shadow-xl shadow-primary-500/20"
-                  onClick={(e) => {
+                  onClick={() => {
                      // Trigger form submit manually since button is outside form if using flex layout for height
                      const form = document.querySelector('form');
                      if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));

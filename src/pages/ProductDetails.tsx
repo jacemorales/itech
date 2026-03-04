@@ -32,6 +32,13 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ onOpenCart, theme, onTo
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
 
+  const loadReviews = React.useCallback(async (productId: string) => {
+    setLoading(true);
+    const data = await getReviews(productId);
+    setReviews(data);
+    setLoading(false);
+  }, [getReviews]);
+
   useEffect(() => {
     // Check if we passed an external product in state
     if (location.state?.externalProduct) {
@@ -51,7 +58,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ onOpenCart, theme, onTo
     } else if (!productsLoading && products.length === 0) {
       setLoading(false);
     }
-  }, [id, products, productsLoading, location.state]);
+  }, [id, products, productsLoading, location.state, loadReviews]);
 
   useEffect(() => {
     if (product && Array.isArray(product.imageUrl) && product.imageUrl.length > 1) {
@@ -74,13 +81,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ onOpenCart, theme, onTo
     if (product && Array.isArray(product.imageUrl)) {
       setCurrentImageIndex(prev => (prev + 1) % product.imageUrl.length);
     }
-  };
-
-  const loadReviews = async (productId: string) => {
-    setLoading(true);
-    const data = await getReviews(productId);
-    setReviews(data);
-    setLoading(false);
   };
 
   const handleAddToCart = () => {

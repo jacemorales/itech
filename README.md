@@ -24,10 +24,11 @@ A modern, production-ready gadget e-commerce platform built with React, TypeScri
 To use Google Sheets as your database, follow these steps:
 
 ### 1. Create a Google Spreadsheet
-Create a new Google Sheet named `iTech_DB`.
+Use this spreadsheet ID: `1J42K_SA9lD8niq4utBopAu04EB7dQt2UwNGu3DCFMt4`
+(Or create a new one and copy the ID from the URL).
 
 ### 2. Create Required Sheets (Tabs)
-Create four tabs at the bottom with these exact names and column headers in the first row:
+Create five tabs at the bottom with these exact names and column headers in the first row:
 
 #### **Products**
 Headers: `id`, `name`, `description`, `price`, `categories`, `imageUrl`, `dateAdded`
@@ -49,7 +50,7 @@ Headers: `id`, `gadgetName`, `source`, `quantity`, `email`, `price`, `totalPrice
 2. Replace the default code with this script:
 
 ```javascript
-const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID_HERE';
+const SPREADSHEET_ID = '1J42K_SA9lD8niq4utBopAu04EB7dQt2UwNGu3DCFMt4';
 
 function doGet(e) {
   const action = e.parameter.action;
@@ -58,21 +59,29 @@ function doGet(e) {
   const getSheetData = (sheetName) => {
     const sheet = ss.getSheetByName(sheetName);
     if (!sheet) return [];
-    const data = sheet.getDataRange().getValues();
+
+    let data;
+    try {
+      data = sheet.getDataRange().getValues();
+    } catch (err) {
+      return []; // Empty sheet or error
+    }
+
     if (data.length <= 1) return [];
     const headers = data[0];
     const rows = data.slice(1);
     return rows.map(row => {
       let obj = {};
       headers.forEach((header, i) => {
-        if (header === 'categories' && row[i]) {
-          obj[header] = row[i].toString().split(',');
-        } else if (header === 'imageUrl' && row[i]) {
-          obj[header] = row[i].toString().split(',');
-        } else if (header === 'price' || header === 'total' || header === 'subtotal' || header === 'totalPrice') {
-          obj[header] = Number(row[i]);
+        const val = row[i];
+        if (header === 'categories' && val) {
+          obj[header] = val.toString().split(',').map(s => s.trim());
+        } else if (header === 'imageUrl' && val) {
+          obj[header] = val.toString().split(',').map(s => s.trim());
+        } else if (header === 'price' || header === 'total' || header === 'subtotal' || header === 'totalPrice' || header === 'rating' || header === 'quantity') {
+          obj[header] = isNaN(Number(val)) ? 0 : Number(val);
         } else {
-          obj[header] = row[i];
+          obj[header] = val;
         }
       });
       return obj;
@@ -81,28 +90,32 @@ function doGet(e) {
 
   let result = [];
 
-  switch(action) {
-    case 'getProducts':
-      result = getSheetData('Products');
-      break;
-    case 'getReviews':
-      const productId = e.parameter.productId;
-      result = getSheetData('Reviews').filter(r => String(r.productId) === String(productId));
-      break;
-    case 'getAllReviews':
-      result = getSheetData('Reviews');
-      break;
-    case 'getOrders':
-      result = getSheetData('Orders');
-      break;
-    case 'getExternalOrders':
-      result = getSheetData('ExternalOrders');
-      break;
-    case 'getCustomRequests':
-      result = getSheetData('CustomRequests');
-      break;
-    default:
-      result = { error: 'Invalid action' };
+  try {
+    switch(action) {
+      case 'getProducts':
+        result = getSheetData('Products');
+        break;
+      case 'getReviews':
+        const productId = e.parameter.productId;
+        result = getSheetData('Reviews').filter(r => String(r.productId) === String(productId));
+        break;
+      case 'getAllReviews':
+        result = getSheetData('Reviews');
+        break;
+      case 'getOrders':
+        result = getSheetData('Orders');
+        break;
+      case 'getExternalOrders':
+        result = getSheetData('ExternalOrders');
+        break;
+      case 'getCustomRequests':
+        result = getSheetData('CustomRequests');
+        break;
+      default:
+        result = { error: 'Invalid action: ' + action };
+    }
+  } catch (err) {
+    result = { error: err.toString() };
   }
 
   return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
@@ -166,7 +179,7 @@ function doPost(e) {
       body.items, body.subtotal, body.total, body.date
     ]);
 
-    // Optional: Notify Admin via Email
+    // Notify Admin via Email
     try {
       const adminEmail = 'jacemorales54321@gmail.com';
       const subject = 'New Order Received - ITECHGADETS';
@@ -208,11 +221,3 @@ To prevent descriptions from showing as a single "blob" of text, the website use
 ## Admin Panel Access
 - **URL**: `/admin`
 - **Password**: `mmm`
-
-## Initial Data (Insert into Products sheet)
-| id | name | description | price | categories | imageUrl |
-|----|------|-------------|-------|------------|----------|
-| 1 | iPod Classic | The original music player. | 50000 | iPod | https://images.unsplash.com/photo-1591337676887-a217a6970a8a |
-| 2 | iPad Pro | Powerful tablet for professionals. | 450000 | iPad | https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0 |
-| 3 | MacBook Air | Lightweight and powerful laptop. | 850000 | Laptop | https://images.unsplash.com/photo-1517336714460-4c504a29643d |
-| 4 | Bluetooth Speaker | High-quality sound on the go. | 25000 | Speaker | https://images.unsplash.com/photo-1608156639585-342c718537c3 |
