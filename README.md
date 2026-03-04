@@ -55,19 +55,21 @@ function doGet(e) {
   const action = e.parameter.action;
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
 
-  if (action === 'getProducts') {
-    const sheet = ss.getSheetByName('Products');
+  const getSheetData = (sheetName) => {
+    const sheet = ss.getSheetByName(sheetName);
+    if (!sheet) return [];
     const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return [];
     const headers = data[0];
     const rows = data.slice(1);
-    const result = rows.map(row => {
+    return rows.map(row => {
       let obj = {};
       headers.forEach((header, i) => {
-        if (header === 'categories') {
-          obj[header] = row[i] ? row[i].toString().split(',') : [];
-        } else if (header === 'imageUrl') {
-          obj[header] = row[i] ? row[i].toString().split(',') : [];
-        } else if (header === 'price') {
+        if (header === 'categories' && row[i]) {
+          obj[header] = row[i].toString().split(',');
+        } else if (header === 'imageUrl' && row[i]) {
+          obj[header] = row[i].toString().split(',');
+        } else if (header === 'price' || header === 'total' || header === 'subtotal' || header === 'totalPrice') {
           obj[header] = Number(row[i]);
         } else {
           obj[header] = row[i];
@@ -75,82 +77,35 @@ function doGet(e) {
       });
       return obj;
     });
-    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+  };
+
+  let result = [];
+
+  switch(action) {
+    case 'getProducts':
+      result = getSheetData('Products');
+      break;
+    case 'getReviews':
+      const productId = e.parameter.productId;
+      result = getSheetData('Reviews').filter(r => String(r.productId) === String(productId));
+      break;
+    case 'getAllReviews':
+      result = getSheetData('Reviews');
+      break;
+    case 'getOrders':
+      result = getSheetData('Orders');
+      break;
+    case 'getExternalOrders':
+      result = getSheetData('ExternalOrders');
+      break;
+    case 'getCustomRequests':
+      result = getSheetData('CustomRequests');
+      break;
+    default:
+      result = { error: 'Invalid action' };
   }
 
-  if (action === 'getReviews') {
-    const productId = e.parameter.productId;
-    const sheet = ss.getSheetByName('Reviews');
-    const data = sheet.getDataRange().getValues();
-    const headers = data[0];
-    const rows = data.slice(1);
-    const result = rows
-      .map(row => {
-        let obj = {};
-        headers.forEach((header, i) => {
-          obj[header] = row[i];
-        });
-        return obj;
-      })
-      .filter(review => String(review.productId) === String(productId));
-    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
-  }
-
-  if (action === 'getAllReviews') {
-    const sheet = ss.getSheetByName('Reviews');
-    const data = sheet.getDataRange().getValues();
-    const headers = data[0];
-    const result = data.slice(1).map(row => {
-      let obj = {};
-      headers.forEach((header, i) => {
-        obj[header] = row[i];
-      });
-      return obj;
-    });
-    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
-  }
-
-  if (action === 'getOrders') {
-    const sheet = ss.getSheetByName('Orders');
-    const data = sheet.getDataRange().getValues();
-    const headers = data[0];
-    const result = data.slice(1).map(row => {
-      let obj = {};
-      headers.forEach((header, i) => {
-        obj[header] = row[i];
-      });
-      return obj;
-    });
-    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
-  }
-
-  if (action === 'getExternalOrders') {
-    const sheet = ss.getSheetByName('ExternalOrders');
-    const data = sheet.getDataRange().getValues();
-    const headers = data[0];
-    const result = data.slice(1).map(row => {
-      let obj = {};
-      headers.forEach((header, i) => {
-        obj[header] = row[i];
-      });
-      return obj;
-    });
-    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
-  }
-
-  if (action === 'getCustomRequests') {
-    const sheet = ss.getSheetByName('CustomRequests');
-    const data = sheet.getDataRange().getValues();
-    const headers = data[0];
-    const result = data.slice(1).map(row => {
-      let obj = {};
-      headers.forEach((header, i) => {
-        obj[header] = row[i];
-      });
-      return obj;
-    });
-    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
-  }
+  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
@@ -158,23 +113,28 @@ function doPost(e) {
   const action = body.action;
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
 
+  const appendToSheet = (sheetName, rowData) => {
+    const sheet = ss.getSheetByName(sheetName);
+    if (!sheet) return false;
+    sheet.appendRow(rowData);
+    return true;
+  };
+
+  let success = false;
+
   if (action === 'addReview') {
-    const sheet = ss.getSheetByName('Reviews');
     const id = Utilities.getUuid();
-    sheet.appendRow([id, body.productId, body.userName, body.comment, body.rating, body.date]);
-    return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
+    success = appendToSheet('Reviews', [id, body.productId, body.userName, body.comment, body.rating, body.date]);
   }
 
-  if (action === 'addProduct') {
-    const sheet = ss.getSheetByName('Products');
+  else if (action === 'addProduct') {
     const id = Utilities.getUuid();
     const imageUrl = Array.isArray(body.imageUrl) ? body.imageUrl.join(',') : body.imageUrl;
     const dateAdded = new Date().toISOString().split('T')[0];
-    sheet.appendRow([id, body.name, body.description, body.price, body.categories.join(','), imageUrl, dateAdded]);
-    return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
+    success = appendToSheet('Products', [id, body.name, body.description, body.price, body.categories.join(','), imageUrl, dateAdded]);
   }
 
-  if (action === 'updateProduct') {
+  else if (action === 'updateProduct') {
     const sheet = ss.getSheetByName('Products');
     const data = sheet.getDataRange().getValues();
     const id = body.id;
@@ -188,22 +148,19 @@ function doPost(e) {
           const imageUrl = Array.isArray(body.imageUrl) ? body.imageUrl.join(',') : body.imageUrl;
           sheet.getRange(i + 1, 6).setValue(imageUrl);
         }
+        success = true;
         break;
       }
     }
-    return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
   }
 
-  if (action === 'addCustomRequest') {
-    const sheet = ss.getSheetByName('CustomRequests');
+  else if (action === 'addCustomRequest') {
     const id = Utilities.getUuid();
-    sheet.appendRow([id, body.gadgetName, body.description, body.imageUrl, body.email, body.date]);
-    return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
+    success = appendToSheet('CustomRequests', [id, body.gadgetName, body.description, body.imageUrl, body.email, body.date]);
   }
 
-  if (action === 'addOrder') {
-    const sheet = ss.getSheetByName('Orders');
-    sheet.appendRow([
+  else if (action === 'addOrder') {
+    success = appendToSheet('Orders', [
       body.fullName, body.matricNumber, body.regNumber, body.email,
       body.platform, body.platformValue, body.deliveryLocation,
       body.items, body.subtotal, body.total, body.date
@@ -219,22 +176,18 @@ function doPost(e) {
                        `Contact: ${body.platform} - ${body.platformValue}\n` +
                        `Delivery: ${body.deliveryLocation}`;
       MailApp.sendEmail(adminEmail, subject, bodyText);
-    } catch (e) {
-      // Email quota might be exceeded or failed
-    }
-
-    return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
+    } catch (e) {}
   }
 
-  if (action === 'addExternalOrder') {
-    const sheet = ss.getSheetByName('ExternalOrders');
+  else if (action === 'addExternalOrder') {
     const id = Utilities.getUuid();
-    sheet.appendRow([
+    success = appendToSheet('ExternalOrders', [
       id, body.gadgetName, body.source, body.quantity, body.email,
       body.price, body.totalPrice, body.imageUrl, body.date
     ]);
-    return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
   }
+
+  return ContentService.createTextOutput(JSON.stringify({ success })).setMimeType(ContentService.MimeType.JSON);
 }
 ```
 

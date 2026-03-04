@@ -58,14 +58,6 @@ const Home: React.FC<HomeProps> = ({ onOpenCart, theme, onToggleTheme }) => {
             >
               Explore our curated selection of high-quality electronics, from the iconic iPod to the latest iPad and powerful laptops.
             </motion.p>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="w-full sticky top-[24px] z-30 py-4 px-4 rounded-3xl"
-            >
-              <SearchBar />
-            </motion.div>
           </div>
         </div>
 
@@ -73,6 +65,13 @@ const Home: React.FC<HomeProps> = ({ onOpenCart, theme, onToggleTheme }) => {
         <div className="absolute -left-20 -top-20 -z-10 h-64 w-64 rounded-full bg-primary-600/10 blur-3xl" />
         <div className="absolute -right-20 -bottom-20 -z-10 h-96 w-96 rounded-full bg-primary-600/10 blur-3xl" />
       </section>
+
+      {/* Sticky Search Bar - Outside Hero for better persistence */}
+      <div className="sticky top-0 z-30 w-full py-4 bg-white/90 dark:bg-gray-950/90 backdrop-blur-md px-4 shadow-sm border-b dark:border-gray-800">
+        <div className="container mx-auto">
+          <SearchBar />
+        </div>
+      </div>
 
       {/* Product Section */}
       <section id="products" className="bg-gray-50 py-16 dark:bg-gray-900/50">
