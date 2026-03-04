@@ -5,7 +5,7 @@ import type { Product, Category } from '../types';
 import { Button } from '../components/ui/Button';
 import { Input, TextArea } from '../components/ui/Input';
 import { toast } from 'sonner';
-import { Edit, X, Lock, Package, RefreshCw } from 'lucide-react';
+import { Edit, X, Lock, Package } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { googleSheetsService } from '../services/googleSheets';
 import { AdminNavbar } from '../components/layout/AdminNavbar';
@@ -200,6 +200,8 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
         activeView={activeView}
         onViewChange={(view) => setActiveView(view)}
         onAddClick={() => handleOpenModal()}
+        onRefresh={() => loadViewData(activeView)}
+        refreshing={loadingViewData}
         theme={theme}
         onToggleTheme={onToggleTheme}
       />
@@ -211,15 +213,6 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
               {activeView.replace('-', ' ')}
             </h1>
           </div>
-          {activeView !== 'inventory' && (
-            <button
-              onClick={() => loadViewData(activeView)}
-              disabled={loadingViewData}
-              className="p-2 text-gray-400 hover:text-primary-600 transition-colors"
-            >
-              <RefreshCw className={`h-5 w-5 ${loadingViewData ? 'animate-spin' : ''}`} />
-            </button>
-          )}
         </div>
 
         {activeView === 'inventory' && (
@@ -263,7 +256,7 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
           <div className="bg-white dark:bg-gray-900 border dark:border-gray-800 rounded-3xl overflow-hidden shadow-sm">
             {loadingViewData ? (
               <div className="flex flex-col items-center justify-center py-24 gap-4">
-                <RefreshCw className="h-8 w-8 text-primary-600 animate-spin" />
+                <div className="h-8 w-8 text-primary-600 animate-spin border-4 border-current border-t-transparent rounded-full" />
                 <p className="text-gray-500 font-bold">Fetching records...</p>
               </div>
             ) : viewData.length === 0 ? (
