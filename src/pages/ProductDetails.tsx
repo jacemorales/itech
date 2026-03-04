@@ -8,6 +8,7 @@ import { Minus, Plus, ShoppingCart, Star, ChevronLeft, ChevronRight, Calendar } 
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input, TextArea } from '../components/ui/Input';
 import { toast } from 'sonner';
+import { ExternalOrderModal } from '../components/ExternalOrderModal';
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +24,7 @@ const ProductDetails: React.FC = () => {
   const [submittingReview, setSubmittingReview] = useState(false);
   const [newReview, setNewReview] = useState({ name: '', text: '', rating: 5 });
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
 
   useEffect(() => {
     // Check if we passed an external product in state
@@ -77,6 +79,10 @@ const ProductDetails: React.FC = () => {
 
   const handleAddToCart = () => {
     if (product) {
+      if (product.isExternal) {
+        setIsOrderModalOpen(true);
+        return;
+      }
       addToCart(product, quantity);
       toast.success(`${product.name} added to cart!`);
     }
@@ -355,6 +361,11 @@ const ProductDetails: React.FC = () => {
           </div>
         </div>
       )}
+      <ExternalOrderModal
+        isOpen={isOrderModalOpen}
+        onClose={() => setIsOrderModalOpen(false)}
+        product={product}
+      />
     </div>
   );
 };

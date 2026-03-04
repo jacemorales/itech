@@ -46,11 +46,11 @@ const Checkout: React.FC = () => {
     setIsSubmitting(true);
 
     // Save the order details to the database
+    // Format: item ordered, price, quantity, total price
     const orderData = {
       ...formData,
-      items: cart.map(item => `${item.name} (x${item.quantity})`).join(', '),
+      items: cart.map(item => `${item.name} (Price: ₦${item.price.toLocaleString()}, Qty: ${item.quantity}, Item Total: ₦${(item.price * item.quantity).toLocaleString()})`).join(' | '),
       subtotal,
-      deliveryFee,
       total
     };
 

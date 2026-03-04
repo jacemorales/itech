@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Product } from '../../types';
 import { useCart } from '../../context/CartContext';
 import { Link } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { toast } from 'sonner';
+import { ExternalOrderModal } from '../ExternalOrderModal';
 
 interface ProductCardProps {
   product: Product;
@@ -12,13 +13,13 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (product.isExternal) {
-      toast.info('External item selected. Redirecting to order form...');
-      // Logic for redirecting or opening order modal
+      setIsOrderModalOpen(true);
       return;
     }
     addToCart(product);
@@ -26,6 +27,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   return (
+    <>
     <Link
       to={`/product/${product.id}`}
       state={{ externalProduct: product.isExternal ? product : null }}
@@ -72,5 +74,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
       </div>
     </Link>
+    <ExternalOrderModal
+      isOpen={isOrderModalOpen}
+      onClose={() => setIsOrderModalOpen(false)}
+      product={product}
+    />
+    </>
   );
 };

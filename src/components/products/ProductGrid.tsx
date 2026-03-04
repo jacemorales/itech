@@ -28,18 +28,34 @@ export const ProductGrid: React.FC = () => {
     );
   }
 
-  if (filteredProducts.length === 0) {
+  if (filteredProducts.length === 0 && !isSearchingDeeper && externalProducts.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-center">
-        <div className="rounded-full bg-gray-100 p-6 dark:bg-gray-800">
-          <svg className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+      <div className="space-y-12">
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <div className="rounded-full bg-gray-100 p-6 dark:bg-gray-800">
+            <svg className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <h3 className="mt-4 text-xl font-bold">No gadgets found in our inventory</h3>
+          <p className="mt-2 text-gray-500 max-w-sm">
+            We couldn't find any gadgets matching your criteria in our warehouse.
+          </p>
         </div>
-        <h3 className="mt-4 text-xl font-bold">No gadgets found</h3>
-        <p className="mt-2 text-gray-500 max-w-sm">
-          We couldn't find any gadgets matching your criteria. Try adjusting your search or filters.
-        </p>
+
+        {searchQuery && (
+          <div className="flex flex-col items-center justify-center pt-8 border-t dark:border-gray-800">
+            <p className="text-gray-500 mb-4">Didn't find what you're looking for?</p>
+            <Button
+              onClick={searchDeeper}
+              loading={isSearchingDeeper}
+              variant="outline"
+              className="rounded-full px-8"
+            >
+              Search deeper...
+            </Button>
+          </div>
+        )}
       </div>
     );
   }
@@ -66,9 +82,13 @@ export const ProductGrid: React.FC = () => {
         </AnimatePresence>
       </motion.div>
 
-      {searchQuery && externalProducts.length === 0 && (
+      {searchQuery && (
         <div className="flex flex-col items-center justify-center pt-8 border-t dark:border-gray-800">
-          <p className="text-gray-500 mb-4">Didn't find what you're looking for?</p>
+          <p className="text-gray-500 mb-4">
+            {externalProducts.length > 0
+              ? "Want to see more results from the web?"
+              : "Didn't find what you're looking for?"}
+          </p>
           <Button
             onClick={searchDeeper}
             loading={isSearchingDeeper}

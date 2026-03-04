@@ -143,5 +143,26 @@ export const googleSheetsService = {
       console.error('Error adding order to Google Sheets:', error);
       return false;
     }
+  },
+
+  async addExternalOrder(order: any): Promise<boolean> {
+    try {
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'addExternalOrder',
+          ...order,
+          date: new Date().toISOString()
+        })
+      });
+      return true;
+    } catch (error) {
+      console.error('Error adding external order to Google Sheets:', error);
+      return false;
+    }
   }
 };

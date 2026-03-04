@@ -39,7 +39,10 @@ Headers: `id`, `productId`, `userName`, `comment`, `rating`, `date`
 Headers: `id`, `gadgetName`, `description`, `imageUrl`, `email`, `date`
 
 #### **Orders**
-Headers: `fullName`, `matricNumber`, `regNumber`, `email`, `platform`, `platformValue`, `deliveryLocation`, `items`, `subtotal`, `deliveryFee`, `total`, `date`
+Headers: `fullName`, `matricNumber`, `regNumber`, `email`, `platform`, `platformValue`, `deliveryLocation`, `items`, `subtotal`, `total`, `date`
+
+#### **ExternalOrders**
+Headers: `id`, `gadgetName`, `source`, `quantity`, `email`, `price`, `totalPrice`, `imageUrl`, `date`
 
 ### 3. Deploy Google Apps Script
 1. In your Google Sheet, go to **Extensions > Apps Script**.
@@ -147,7 +150,7 @@ function doPost(e) {
     sheet.appendRow([
       body.fullName, body.matricNumber, body.regNumber, body.email,
       body.platform, body.platformValue, body.deliveryLocation,
-      body.items, body.subtotal, body.deliveryFee, body.total, body.date
+      body.items, body.subtotal, body.total, body.date
     ]);
 
     // Optional: Notify Admin via Email
@@ -164,6 +167,16 @@ function doPost(e) {
       // Email quota might be exceeded or failed
     }
 
+    return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === 'addExternalOrder') {
+    const sheet = ss.getSheetByName('ExternalOrders');
+    const id = Utilities.getUuid();
+    sheet.appendRow([
+      id, body.gadgetName, body.source, body.quantity, body.email,
+      body.price, body.totalPrice, body.imageUrl, body.date
+    ]);
     return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
   }
 }

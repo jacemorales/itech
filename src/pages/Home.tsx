@@ -30,7 +30,7 @@ const Home: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
-              className="w-full"
+              className="w-full sticky top-[72px] z-30 py-4 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md px-4 rounded-3xl shadow-sm md:shadow-none"
             >
               <SearchBar />
             </motion.div>
