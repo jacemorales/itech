@@ -18,19 +18,26 @@ export const serperService = {
 
       if (!data.shopping) return [];
 
-      return data.shopping.map((item: any) => ({
-        id: item.productId || `external-${Math.random().toString(36).substr(2, 9)}`,
-        name: item.title,
-        description: `Source: ${item.source}`,
-        price: 0, // We don't display price for external items
-        categories: [],
-        imageUrl: item.imageUrl,
-        isExternal: true,
-        rating: item.rating,
-        ratingCount: item.ratingCount,
-        source: item.source,
-        link: item.link
-      }));
+      return data.shopping.map((item: any) => {
+        // Extract numeric price from strings like "$6.99"
+        const numericPrice = typeof item.price === 'string'
+          ? parseFloat(item.price.replace(/[^0-9.]/g, ''))
+          : (typeof item.price === 'number' ? item.price : 0);
+
+        return {
+          id: item.productId || `external-${Math.random().toString(36).substr(2, 9)}`,
+          name: item.title,
+          description: `Source: ${item.source}`,
+          price: numericPrice,
+          categories: [],
+          imageUrl: item.imageUrl,
+          isExternal: true,
+          rating: item.rating,
+          ratingCount: item.ratingCount,
+          source: item.source,
+          link: item.link
+        };
+      });
     } catch (error) {
       console.error('Error fetching shopping results from Serper:', error);
       return [];

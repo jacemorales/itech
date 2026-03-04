@@ -95,6 +95,62 @@ function doGet(e) {
       .filter(review => String(review.productId) === String(productId));
     return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
   }
+
+  if (action === 'getAllReviews') {
+    const sheet = ss.getSheetByName('Reviews');
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+    const result = data.slice(1).map(row => {
+      let obj = {};
+      headers.forEach((header, i) => {
+        obj[header] = row[i];
+      });
+      return obj;
+    });
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === 'getOrders') {
+    const sheet = ss.getSheetByName('Orders');
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+    const result = data.slice(1).map(row => {
+      let obj = {};
+      headers.forEach((header, i) => {
+        obj[header] = row[i];
+      });
+      return obj;
+    });
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === 'getExternalOrders') {
+    const sheet = ss.getSheetByName('ExternalOrders');
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+    const result = data.slice(1).map(row => {
+      let obj = {};
+      headers.forEach((header, i) => {
+        obj[header] = row[i];
+      });
+      return obj;
+    });
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === 'getCustomRequests') {
+    const sheet = ss.getSheetByName('CustomRequests');
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+    const result = data.slice(1).map(row => {
+      let obj = {};
+      headers.forEach((header, i) => {
+        obj[header] = row[i];
+      });
+      return obj;
+    });
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+  }
 }
 
 function doPost(e) {
@@ -184,7 +240,14 @@ function doPost(e) {
 
 3. Update `YOUR_SPREADSHEET_ID_HERE` with your sheet ID from the URL.
 4. **Deploy > New Deployment**. Select **Web App**. Execute as **Me**. Who has access **Anyone**.
-5. Re-authorize if prompted. Copy the **Web App URL**.
+5. Re-authorize if prompted. **Important**: You must grant permissions for the script to send emails on your behalf during authorization.
+6. Copy the **Web App URL**.
+
+### 3.1 Email Notification Setup
+The script is configured to send an email to `jacemorales54321@gmail.com` whenever a new order is placed.
+- **Authorization**: When you deploy the script, Google will ask for permission to "Send email as you". You must click "Allow".
+- **Quota**: Free Google accounts have a limit of 100 emails per day via Apps Script.
+- **Troubleshooting**: If emails are not arriving, check the "Executions" tab in the Apps Script editor to see if there were any errors.
 
 ### 4. Important Implementation Note
 To prevent descriptions from showing as a single "blob" of text, the website uses `white-space: pre-wrap;` on the description container. This ensures that all line breaks and spacing entered in the Admin panel are preserved in the product display.

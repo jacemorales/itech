@@ -164,5 +164,53 @@ export const googleSheetsService = {
       console.error('Error adding external order to Google Sheets:', error);
       return false;
     }
+  },
+
+  async getAllReviews(): Promise<Review[]> {
+    try {
+      const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getAllReviews`);
+      const data = await response.json();
+      return data.map((r: any) => ({
+        ...r,
+        name: r.userName || r.name || 'Anonymous',
+        text: r.comment || r.text || ''
+      }));
+    } catch (error) {
+      console.error('Error fetching all reviews:', error);
+      return [];
+    }
+  },
+
+  async getAllOrders(): Promise<any[]> {
+    try {
+      const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getOrders`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching all orders:', error);
+      return [];
+    }
+  },
+
+  async getAllExternalOrders(): Promise<any[]> {
+    try {
+      const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getExternalOrders`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching all external orders:', error);
+      return [];
+    }
+  },
+
+  async getAllCustomRequests(): Promise<any[]> {
+    try {
+      const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getCustomRequests`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching all custom requests:', error);
+      return [];
+    }
   }
 };

@@ -20,9 +20,7 @@ export const ExternalOrderModal: React.FC<ExternalOrderModalProps> = ({ isOpen, 
 
   if (!product) return null;
 
-  // Since it's external, we might have a price string from the API like "$6.99"
-  // But the prompt says "do not display price" in some places and "price which is set to hidden" in others.
-  // We'll store it but hide it in the form.
+  // Since it's external, we use the numeric price extracted from the API
   const price = product.price || 0;
   const totalPrice = price * quantity;
 
@@ -131,6 +129,17 @@ export const ExternalOrderModal: React.FC<ExternalOrderModalProps> = ({ isOpen, 
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
+
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-2xl border dark:border-gray-700">
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-gray-500">Unit Price</span>
+                  <span className="font-bold">${price.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-lg font-black pt-2 border-t dark:border-gray-700">
+                  <span>Total</span>
+                  <span className="text-primary-600">${totalPrice.toLocaleString()}</span>
+                </div>
+              </div>
 
               {/* Hidden fields */}
               <input type="hidden" name="price" value={price} />
