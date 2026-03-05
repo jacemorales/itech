@@ -16,7 +16,7 @@ const Home: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               className="mb-6 text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-6xl uppercase"
             >
-              The Best Gadgets, <span className="text-primary-600">ITECHGADETS.</span>
+              The Best Gadgets, <span className="text-primary-600">iTech Gadgets.</span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
