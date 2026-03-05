@@ -9,8 +9,7 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-6">
-              <img src="/logo.png" alt="iTech Gadgets" className="h-10 w-auto" />
-              <span className="text-2xl font-bold text-primary-600 tracking-tight">iTech <span className="text-gray-900 dark:text-white">Gadgets</span></span>
+              <span className="text-2xl font-black text-primary-600 tracking-tighter uppercase">iTech <span className="text-gray-900 dark:text-white">Gadgets</span></span>
             </Link>
             <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-xs">
               The premier destination for the latest and greatest tech gadgets. Quality guaranteed, satisfaction delivered.
