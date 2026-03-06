@@ -4,24 +4,18 @@ import { useProducts } from '../context/ProductContext';
 import { useCart } from '../context/CartContext';
 import type { Product, Review } from '../types';
 import { Button } from '../components/ui/Button';
-import { Minus, Plus, ShoppingCart, Star, ChevronLeft, ChevronRight, Calendar, Moon, Sun } from 'lucide-react';
+import { Minus, Plus, ShoppingCart, Star, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input, TextArea } from '../components/ui/Input';
 import { toast } from 'sonner';
 import { ExternalOrderModal } from '../components/ExternalOrderModal';
 
-interface ProductDetailsProps {
-  onOpenCart: () => void;
-  theme: 'light' | 'dark';
-  onToggleTheme: () => void;
-}
-
-const ProductDetails: React.FC<ProductDetailsProps> = ({ onOpenCart, theme, onToggleTheme }) => {
+const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
   const { products, getReviews, addReview, loading: productsLoading } = useProducts();
-  const { addToCart, itemCount } = useCart();
+  const { addToCart } = useCart();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -143,35 +137,13 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ onOpenCart, theme, onTo
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="flex items-center justify-between mb-8">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-sm font-bold text-gray-600 hover:text-primary-600 transition-colors"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          Back to Products
-        </Link>
-
-        <div className="flex items-center gap-4">
-          <button
-            onClick={onOpenCart}
-            className="relative rounded-full p-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-lg border dark:border-gray-700 transition-transform hover:scale-105"
-          >
-            <ShoppingCart className="h-5 w-5" />
-            {itemCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-600 text-[10px] font-bold text-white shadow-md">
-                {itemCount}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={onToggleTheme}
-            className="rounded-full p-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-lg border dark:border-gray-700 transition-transform hover:scale-105"
-          >
-            {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-          </button>
-        </div>
-      </div>
+      <Link
+        to="/"
+        className="inline-flex items-center gap-2 text-sm font-bold text-gray-600 hover:text-primary-600 mb-8 transition-colors"
+      >
+        <ChevronLeft className="h-4 w-4" />
+        Back to Products
+      </Link>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
         <motion.div

@@ -467,7 +467,7 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6 overflow-y-auto pr-2 custom-scrollbar flex-1">
+              <form onSubmit={handleSubmit} className="space-y-6 pr-2 custom-scrollbar flex-1" style={{ overflowY: 'scroll', height: '376px' }}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Input
                     label="Gadget Name"

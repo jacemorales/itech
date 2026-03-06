@@ -17,7 +17,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart, theme, onToggleTheme
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-primary-600 tracking-tight">ITECH<span className="text-gray-900 dark:text-white">GADETS</span></span>
+            <span className="text-2xl font-black text-primary-600 tracking-tighter uppercase">iTech <span className="text-gray-900 dark:text-white">Gadgets</span></span>
           </Link>
         </div>
 
