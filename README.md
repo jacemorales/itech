@@ -221,3 +221,11 @@ To prevent descriptions from showing as a single "blob" of text, the website use
 ## Admin Panel Access
 - **URL**: `/admin`
 - **Password**: `mmm`
+
+## Netlify Deployment Instructions
+To ensure the site works correctly on Netlify:
+1. **Build Settings**:
+   - Build command: `npm run build`
+   - Publish directory: `dist`
+2. **Base Path**: If you are deploying this site within a subdirectory (like `lancer/web`), you should set the "Base directory" in Netlify settings to the root of this project, but ensure your build command and publish directory are correct.
+3. **Redirects**: A `_redirects` file is included in the `public` folder to handle Single Page Application (SPA) routing. It will be copied to the `dist` folder automatically during build.
