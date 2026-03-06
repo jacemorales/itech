@@ -85,7 +85,7 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <Router basename="/lancer/web">
+    <Router>
       <ProductProvider>
         <CartProvider>
           <AppContent />
