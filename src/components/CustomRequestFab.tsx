@@ -148,6 +148,10 @@ export const CustomRequestFab: React.FC = () => {
                   )}
                 </div>
 
+                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium text-center italic">
+                  ensure to check your email within 24 hours
+                </p>
+
                 <Button
                   type="submit"
                   className="w-full rounded-2xl py-6 text-lg font-bold h-14 shadow-lg"
