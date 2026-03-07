@@ -81,7 +81,7 @@ export const ExternalOrderModal: React.FC<ExternalOrderModalProps> = ({ isOpen, 
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6 pl-2">
+            <form onSubmit={handleSubmit} className="space-y-6 pl-2 pr-2" style={{ height: '350px', overflowY: 'scroll' }}>
               <Input
                 label="Gadget Name"
                 value={product.name}
@@ -145,6 +145,10 @@ export const ExternalOrderModal: React.FC<ExternalOrderModalProps> = ({ isOpen, 
               <input type="hidden" name="price" value={price} />
               <input type="hidden" name="totalPrice" value={totalPrice} />
               <input type="hidden" name="imageUrl" value={Array.isArray(product.imageUrl) ? product.imageUrl[0] : product.imageUrl} />
+
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium text-center italic">
+                ensure to check your email within 24 hours
+              </p>
 
               <Button
                 type="submit"
