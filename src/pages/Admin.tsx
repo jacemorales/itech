@@ -5,7 +5,7 @@ import type { Product, Category } from '../types';
 import { Button } from '../components/ui/Button';
 import { Input, TextArea } from '../components/ui/Input';
 import { toast } from 'sonner';
-import { Edit, X, Lock, Package, RefreshCw, ShoppingBag, User, CreditCard, Plus } from 'lucide-react';
+import { Edit, X, Lock, Package, RefreshCw, ShoppingBag, User, CreditCard, Plus, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { googleSheetsService } from '../services/googleSheets';
 import { AdminNavbar } from '../components/layout/AdminNavbar';
@@ -23,6 +23,7 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeView, setActiveView] = useState<AdminView>('inventory');
   const [password, setPassword] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -156,6 +157,46 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
     setLoadingViewData(false);
   };
 
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.categories.some(cat => cat.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  const filteredViewData = viewData.filter(row => {
+    const searchStr = searchTerm.toLowerCase();
+    if (activeView === 'orders') {
+      return (
+        row.fullName?.toLowerCase().includes(searchStr) ||
+        row.email?.toLowerCase().includes(searchStr) ||
+        row.deliveryLocation?.toLowerCase().includes(searchStr) ||
+        row.items?.toLowerCase().includes(searchStr)
+      );
+    }
+    if (activeView === 'external-orders') {
+      return (
+        row.gadgetName?.toLowerCase().includes(searchStr) ||
+        row.email?.toLowerCase().includes(searchStr) ||
+        row.source?.toLowerCase().includes(searchStr)
+      );
+    }
+    if (activeView === 'custom-requests') {
+      return (
+        row.gadgetName?.toLowerCase().includes(searchStr) ||
+        row.email?.toLowerCase().includes(searchStr) ||
+        row.description?.toLowerCase().includes(searchStr)
+      );
+    }
+    if (activeView === 'reviews') {
+      return (
+        row.name?.toLowerCase().includes(searchStr) ||
+        row.text?.toLowerCase().includes(searchStr) ||
+        String(row.productId).toLowerCase().includes(searchStr)
+      );
+    }
+    return true;
+  });
+
   React.useEffect(() => {
     if (isAuthenticated && activeView !== 'inventory') {
       loadViewData(activeView);
@@ -168,7 +209,7 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl dark:bg-gray-900 border dark:border-gray-800 my-auto"
+          className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl dark:bg-gray-900 border dark:border-gray-800 my-auto"
         >
           <div className="flex flex-col items-center mb-8">
             <div className="h-16 w-16 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 dark:bg-primary-950 mb-4 shadow-inner">
@@ -177,7 +218,7 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
             <h2 className="text-2xl font-black tracking-tight">Admin Portal</h2>
             <p className="text-gray-500 text-sm mt-2 font-medium">Secure access to iTech Dashboard</p>
           </div>
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-6 pl-2">
             <Input
               label="Admin Password"
               type="password"
@@ -213,11 +254,21 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
       />
 
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white capitalize tracking-tight">
-              {activeView.replace('-', ' ')}
-            </h1>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white capitalize tracking-tight">
+            {activeView.replace('-', ' ')}
+          </h1>
+          <div className="relative w-full md:w-64">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <Search className="h-4 w-4 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder={`Search ${activeView.replace('-', ' ')}...`}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="block w-full pl-10 pr-3 py-2 border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 text-sm focus:ring-primary-500 focus:border-primary-500 transition-all"
+            />
           </div>
         </div>
 
@@ -228,7 +279,7 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
                 <RefreshCw className="h-10 w-10 text-primary-600 animate-spin" />
                 <p className="text-gray-500 font-bold animate-pulse">Loading Inventory...</p>
               </div>
-            ) : products.length === 0 ? (
+            ) : filteredProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 text-center">
                 <div className="h-20 w-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4 shadow-inner">
                   <Package className="h-10 w-10 text-gray-300" />
@@ -238,7 +289,7 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {products.map(product => (
+                {filteredProducts.map(product => (
                 <div key={product.id} className="bg-white border dark:border-gray-800 rounded-3xl p-6 dark:bg-gray-900 flex flex-col shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
                   <div className="flex items-start gap-4 mb-4">
                     <div className="h-20 w-20 overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 flex-shrink-0 border dark:border-gray-700">
@@ -282,7 +333,7 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
                 <RefreshCw className="h-10 w-10 text-primary-600 animate-spin" />
                 <p className="text-gray-500 font-bold animate-pulse">Synchronizing with Google Sheets...</p>
               </div>
-            ) : viewData.length === 0 ? (
+            ) : filteredViewData.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 text-center">
                 <div className="h-20 w-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4 shadow-inner">
                   <Package className="h-10 w-10 text-gray-300" />
@@ -328,7 +379,7 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y dark:divide-gray-800">
-                    {viewData.map((row, i) => (
+                    {filteredViewData.map((row, i) => (
                       <tr key={i} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
                         {activeView === 'orders' && (
                           <>
@@ -458,7 +509,7 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-2xl bg-white rounded-3xl p-8 shadow-2xl dark:bg-gray-900 max-h-[90vh] flex flex-col"
+              className="relative w-full max-w-2xl bg-white rounded-3xl p-6 shadow-2xl dark:bg-gray-900 max-h-[90vh] flex flex-col"
             >
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-2xl font-black tracking-tight">{editingProduct ? 'Edit Gadget' : 'Publish New Gadget'}</h2>
@@ -467,7 +518,7 @@ const Admin: React.FC<AdminProps> = ({ theme, onToggleTheme }) => {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6 pr-2 custom-scrollbar flex-1" style={{ overflowY: 'scroll', height: '376px' }}>
+              <form onSubmit={handleSubmit} className="space-y-6 pr-2 custom-scrollbar flex-1 pl-2" style={{ overflowY: 'scroll', height: '376px' }}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Input
                     label="Gadget Name"

@@ -89,7 +89,7 @@ export const CustomRequestFab: React.FC = () => {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-3xl p-8 shadow-2xl dark:bg-gray-900 overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-3xl p-6 shadow-2xl dark:bg-gray-900 overflow-hidden"
             >
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -104,7 +104,7 @@ export const CustomRequestFab: React.FC = () => {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6" style={{ overflowY: 'scroll', height: '376px', paddingRight: '15px' }}>
+              <form onSubmit={handleSubmit} className="space-y-6 pl-2" style={{ overflowY: 'scroll', height: '376px', paddingRight: '15px' }}>
                 <Input
                   label="Gadget Name"
                   placeholder="What gadget are you looking for?"

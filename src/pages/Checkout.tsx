@@ -92,14 +92,14 @@ const Checkout: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-3xl p-8 border dark:border-gray-800 dark:bg-gray-950 shadow-sm"
+            className="bg-white rounded-3xl p-6 border dark:border-gray-800 dark:bg-gray-950 shadow-sm"
           >
             <h2 className="text-3xl font-extrabold mb-8 flex items-center gap-3">
               <ShieldCheck className="h-8 w-8 text-primary-600" />
               Secure Checkout
             </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-8 pl-2">
               {isExternalOrder && (
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-2xl border border-blue-100 dark:border-blue-800 mb-8">
                   <h3 className="text-blue-800 dark:text-blue-300 font-bold mb-2">External Item Order</h3>
@@ -219,7 +219,7 @@ const Checkout: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-gray-50 rounded-3xl p-8 border dark:border-gray-800 dark:bg-gray-900 sticky top-24"
+            className="bg-gray-50 rounded-3xl p-6 border dark:border-gray-800 dark:bg-gray-900 sticky top-24"
           >
             <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
               <ShoppingBag className="h-5 w-5" />

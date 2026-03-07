@@ -66,7 +66,7 @@ export const ExternalOrderModal: React.FC<ExternalOrderModalProps> = ({ isOpen, 
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="relative w-full max-w-lg bg-white rounded-3xl p-8 shadow-2xl dark:bg-gray-900 overflow-hidden"
+            className="relative w-full max-w-lg bg-white rounded-3xl p-6 shadow-2xl dark:bg-gray-900 overflow-hidden"
           >
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -81,7 +81,7 @@ export const ExternalOrderModal: React.FC<ExternalOrderModalProps> = ({ isOpen, 
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6 pl-2">
               <Input
                 label="Gadget Name"
                 value={product.name}
